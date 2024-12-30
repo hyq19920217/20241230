@@ -3,9 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>我的第一个网页</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #content {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>大家好！</h1>
-    <p>这是我的第一个网站</p>
+    <div id="content">
+        <h1 id="mainText">加载中...</h1>
+    </div>
+    <script>
+        // 获取展示文字
+        fetch('content.json')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('mainText').textContent = data.text;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('mainText').textContent = '加载失败';
+            });
+    </script>
 </body>
 </html> 
