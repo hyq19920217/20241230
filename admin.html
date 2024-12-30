@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>内容管理</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input {
+            margin: 10px;
+            padding: 5px;
+        }
+        button {
+            padding: 5px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>内容管理</h2>
+        <input type="text" id="textInput" placeholder="输入要显示的文字">
+        <br>
+        <button onclick="updateContent()">更新</button>
+        <p id="message"></p>
+    </div>
+    <script>
+        function updateContent() {
+            const text = document.getElementById('textInput').value;
+            const content = { text: text };
+            
+            fetch('update.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(content)
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('message').textContent = '更新成功！';
+            })
+            .catch(error => {
+                document.getElementById('message').textContent = '更新失败：' + error;
+            });
+        }
+
+        // 加载当前内容
+        fetch('content.json')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('textInput').value = data.text;
+            });
+    </script>
+</body>
+</html> 
