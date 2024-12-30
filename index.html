@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>我的第一个网页</title>
+    <title>我的动态网页</title>
     <style>
         body {
             display: flex;
@@ -15,40 +15,55 @@
         }
         #content {
             text-align: center;
-            padding: 20px;
+            padding: 30px;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-width: 300px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+        .error {
+            color: #ff4444;
         }
     </style>
 </head>
 <body>
     <div id="content">
-        <h1 id="mainText">加载中...</h1>
+        <h1 id="mainText" class="loading">加载中...</h1>
     </div>
     <script>
         function loadContent() {
             fetch('content.json?' + new Date().getTime())
-                .then(response => response.text())  // 先获取文本响应
+                .then(response => response.text())
                 .then(text => {
                     try {
-                        return JSON.parse(text);  // 尝试解析 JSON
+                        return JSON.parse(text);
                     } catch (e) {
                         console.error('解析错误:', text);
                         throw new Error('数据格式错误');
                     }
                 })
                 .then(data => {
-                    document.getElementById('mainText').textContent = data.text || '暂无内容';
+                    const element = document.getElementById('mainText');
+                    element.textContent = data.text || '暂无内容';
+                    element.className = '';
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('mainText').textContent = '加载失败: ' + error.message;
+                    const element = document.getElementById('mainText');
+                    element.textContent = '加载失败: ' + error.message;
+                    element.className = 'error';
                 });
         }
         
         loadContent();
-        // 每5秒刷新一次
         setInterval(loadContent, 5000);
     </script>
 </body>
