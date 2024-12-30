@@ -29,13 +29,21 @@
     <script>
         function loadContent() {
             fetch('content.json?' + new Date().getTime())
-                .then(response => response.json())
+                .then(response => response.text())  // 先获取文本响应
+                .then(text => {
+                    try {
+                        return JSON.parse(text);  // 尝试解析 JSON
+                    } catch (e) {
+                        console.error('解析错误:', text);
+                        throw new Error('数据格式错误');
+                    }
+                })
                 .then(data => {
-                    document.getElementById('mainText').textContent = data.text;
+                    document.getElementById('mainText').textContent = data.text || '暂无内容';
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('mainText').textContent = '加载失败';
+                    document.getElementById('mainText').textContent = '加载失败: ' + error.message;
                 });
         }
         
