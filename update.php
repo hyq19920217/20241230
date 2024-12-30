@@ -10,8 +10,12 @@ header('Access-Control-Allow-Headers: Content-Type');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// 获取 POST 数据
-$data = json_decode(file_get_contents('php://input'), true);
+// 获取原始 POST 数据
+$raw_data = file_get_contents('php://input');
+$data = json_decode($raw_data, true);
+
+// 记录接收到的数据
+error_log("Received data: " . $raw_data);
 
 if (isset($data['text'])) {
     // 将新内容写入 JSON 文件
@@ -20,6 +24,7 @@ if (isset($data['text'])) {
     
     if ($json_content === false) {
         http_response_code(500);
+        error_log("JSON encoding failed: " . json_last_error_msg());
         echo json_encode(['status' => 'error', 'message' => 'JSON encoding failed']);
         exit;
     }
@@ -28,10 +33,12 @@ if (isset($data['text'])) {
         echo json_encode(['status' => 'success']);
     } else {
         http_response_code(500);
+        error_log("Failed to write file");
         echo json_encode(['status' => 'error', 'message' => 'Failed to write file']);
     }
 } else {
     http_response_code(400);
+    error_log("No text provided in data");
     echo json_encode(['status' => 'error', 'message' => 'No text provided']);
 }
 ?> 
