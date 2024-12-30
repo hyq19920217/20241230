@@ -1,4 +1,7 @@
 <?php
+// 设置时区
+date_default_timezone_set('Asia/Shanghai');
+
 // 设置错误日志路径
 ini_set('log_errors', 1);
 ini_set('error_log', '/var/log/nginx/error.log');
