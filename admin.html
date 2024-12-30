@@ -55,35 +55,72 @@
         <p id="message"></p>
     </div>
     <script>
+        // 加载当前内容
+        fetch('content.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('无法加载内容: ' + response.status);
+                }
+                return response.text();
+            })
+            .then(text => {
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('解析错误:', text);
+                    throw new Error('数据格式错误');
+                }
+            })
+            .then(data => {
+                document.getElementById('textInput').value = data.text || '';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('message').textContent = error.message;
+            });
+
         function updateContent() {
             const text = document.getElementById('textInput').value;
-            const content = { text: text };
-            
+            if (!text) {
+                document.getElementById('message').textContent = '请输入文字';
+                return;
+            }
+
             fetch('update.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(content)
+                body: JSON.stringify({ text: text })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('服务器错误: ' + response.status);
+                }
+                return response.text();
+            })
+            .then(text => {
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    throw new Error('服务器返回: ' + text);
+                }
+            })
             .then(data => {
-                document.getElementById('message').textContent = '更新成功！';
-                setTimeout(() => {
-                    document.getElementById('message').textContent = '';
-                }, 2000);
+                if (data.status === 'success') {
+                    document.getElementById('message').textContent = '更新成功！';
+                    setTimeout(() => {
+                        document.getElementById('message').textContent = '';
+                    }, 2000);
+                } else {
+                    throw new Error(data.message || '更新失败');
+                }
             })
             .catch(error => {
-                document.getElementById('message').textContent = '更新失败：' + error;
+                console.error('Error:', error);
+                document.getElementById('message').textContent = error.message;
             });
         }
-
-        // 加载当前内容
-        fetch('content.json')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('textInput').value = data.text;
-            });
     </script>
 </body>
 </html> 
