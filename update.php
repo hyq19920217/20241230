@@ -1,7 +1,7 @@
 <?php
-// 设置错误日志路径
+// 设置错误日志路径（改用 nginx 的错误日志）
 ini_set('log_errors', 1);
-ini_set('error_log', '/var/log/php-fpm/php-error.log');
+ini_set('error_log', '/var/log/nginx/error.log');
 
 header('Content-Type: application/json');
 
