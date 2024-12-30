@@ -11,9 +11,14 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
         }
         #content {
             text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
     </style>
 </head>
@@ -22,16 +27,21 @@
         <h1 id="mainText">加载中...</h1>
     </div>
     <script>
-        // 获取展示文字
-        fetch('content.json')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('mainText').textContent = data.text;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('mainText').textContent = '加载失败';
-            });
+        function loadContent() {
+            fetch('content.json?' + new Date().getTime())
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('mainText').textContent = data.text;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('mainText').textContent = '加载失败';
+                });
+        }
+        
+        loadContent();
+        // 每5秒刷新一次
+        setInterval(loadContent, 5000);
     </script>
 </body>
 </html> 

@@ -11,24 +11,38 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
         }
         .container {
             text-align: center;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 30px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-width: 300px;
         }
         input {
             margin: 10px;
-            padding: 5px;
+            padding: 8px;
+            width: 80%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
         button {
-            padding: 5px 15px;
+            padding: 8px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 3px;
+            border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #message {
+            margin-top: 10px;
+            color: #666;
         }
     </style>
 </head>
@@ -52,9 +66,12 @@
                 },
                 body: JSON.stringify(content)
             })
-            .then(response => response.text())
+            .then(response => response.json())
             .then(data => {
                 document.getElementById('message').textContent = '更新成功！';
+                setTimeout(() => {
+                    document.getElementById('message').textContent = '';
+                }, 2000);
             })
             .catch(error => {
                 document.getElementById('message').textContent = '更新失败：' + error;
