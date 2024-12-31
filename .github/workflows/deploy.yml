@@ -17,7 +17,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: "*.html,*.php,config.php,db.php,nginx/**,vendor/**"
+          source: "*.html,*.php,config.php,db.php,nginx/**,vendor/**,composer.json,composer.lock"
           target: "/usr/share/nginx/html"
           
       - name: Set file permissions and configure nginx
@@ -81,9 +81,10 @@ jobs:
             sudo systemctl start php81-php-fpm
             sudo systemctl enable php81-php-fpm
             
-            # 安装 PhpSpreadsheet
+            # 只在 composer.json 发生变化时安装依赖
             cd /usr/share/nginx/html
-            sudo chown -R lighthouse:lighthouse .
-            rm -f composer.lock
-            php81 /usr/local/bin/composer install --no-interaction
-            sudo chown -R nginx:nginx . 
+            if [ -f composer.json ]; then
+              sudo chown -R lighthouse:lighthouse .
+              php81 /usr/local/bin/composer install --no-interaction
+              sudo chown -R nginx:nginx .
+            fi 

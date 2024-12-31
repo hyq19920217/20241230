@@ -2,69 +2,226 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>我的动态网页</title>
+    <title>产品经理英语词汇宝典</title>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
             background-color: #f0f2f5;
         }
-        #content {
-            text-align: center;
-            padding: 30px;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
             background: white;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-width: 300px;
         }
         h1 {
             color: #333;
-            margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 30px;
         }
-        .loading {
+        .letter-nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .letter-btn {
+            padding: 8px 12px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            min-width: 40px;
+            text-align: center;
+        }
+        .letter-btn:hover {
+            background: #45a049;
+        }
+        .letter-btn.active {
+            background: #2E7D32;
+        }
+        .search-box {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .search-input {
+            padding: 8px 15px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 16px;
+        }
+        .vocabulary-list {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+        .word-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .word-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .word {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .part-of-speech {
             color: #666;
             font-style: italic;
         }
-        .error {
-            color: #ff4444;
+        .meaning {
+            color: #2E7D32;
+            margin-bottom: 10px;
+        }
+        .example {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+        .example-cn {
+            color: #888;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            .search-input {
+                width: 100%;
+                max-width: 300px;
+            }
+            .vocabulary-list {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="content">
-        <h1 id="mainText" class="loading">加载中...</h1>
+    <div class="container">
+        <h1>产品经理英语词汇宝典</h1>
+        
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="搜索单词...">
+        </div>
+        
+        <div class="letter-nav" id="letterNav">
+            <!-- 字母导航将通过 JS 生成 -->
+        </div>
+        
+        <div class="vocabulary-list" id="vocabularyList">
+            <!-- 词汇卡片将通过 JS 加载 -->
+        </div>
     </div>
+
     <script>
-        function loadContent() {
-            fetch('get_content.php?' + new Date().getTime())
-                .then(response => response.text())
-                .then(text => {
-                    try {
-                        return JSON.parse(text);
-                    } catch (e) {
-                        console.error('解析错误:', text);
-                        throw new Error('数据格式错误');
-                    }
-                })
+        // 生成字母导航
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        const nav = document.getElementById('letterNav');
+        let currentLetter = 'A';
+        
+        letters.forEach(letter => {
+            const btn = document.createElement('button');
+            btn.className = `letter-btn ${letter === currentLetter ? 'active' : ''}`;
+            btn.textContent = letter;
+            btn.onclick = () => {
+                document.querySelectorAll('.letter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLetter = letter;
+                loadVocabulary(letter);
+            };
+            nav.appendChild(btn);
+        });
+
+        // 搜索功能
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm) {
+                    searchVocabulary(searchTerm);
+                } else {
+                    loadVocabulary(currentLetter);
+                }
+            }, 300);
+        });
+
+        // 加载词汇列表
+        function loadVocabulary(letter) {
+            const list = document.getElementById('vocabularyList');
+            list.innerHTML = '<div class="loading">加载中...</div>';
+            
+            fetch(`get_vocabulary.php?letter=${letter}`)
+                .then(response => response.json())
                 .then(data => {
-                    const element = document.getElementById('mainText');
-                    element.textContent = data.text || '暂无内容';
-                    element.className = '';
+                    if (data.length === 0) {
+                        list.innerHTML = '<div class="loading">暂无数据</div>';
+                        return;
+                    }
+                    list.innerHTML = data.map(item => `
+                        <div class="word-card">
+                            <div class="word-header">
+                                <div class="word">${item.word}</div>
+                                <div class="part-of-speech">${item.part_of_speech}</div>
+                            </div>
+                            <div class="meaning">${item.meaning}</div>
+                            <div class="example">${item.example}</div>
+                            <div class="example-cn">${item.example_cn}</div>
+                        </div>
+                    `).join('');
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    const element = document.getElementById('mainText');
-                    element.textContent = '加载失败: ' + error.message;
-                    element.className = 'error';
+                    list.innerHTML = '<div class="loading">加载失败</div>';
                 });
         }
-        
-        loadContent();
-        setInterval(loadContent, 5000);
+
+        // 搜索词汇
+        function searchVocabulary(term) {
+            const list = document.getElementById('vocabularyList');
+            list.innerHTML = '<div class="loading">搜索中...</div>';
+            
+            fetch(`search_vocabulary.php?term=${encodeURIComponent(term)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        list.innerHTML = '<div class="loading">未找到匹配的词汇</div>';
+                        return;
+                    }
+                    list.innerHTML = data.map(item => `
+                        <div class="word-card">
+                            <div class="word-header">
+                                <div class="word">${item.word}</div>
+                                <div class="part-of-speech">${item.part_of_speech}</div>
+                            </div>
+                            <div class="meaning">${item.meaning}</div>
+                            <div class="example">${item.example}</div>
+                            <div class="example-cn">${item.example_cn}</div>
+                        </div>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    list.innerHTML = '<div class="loading">搜索失败</div>';
+                });
+        }
+
+        // 默认加载 A 开头的词汇
+        loadVocabulary('A');
     </script>
 </body>
 </html> 

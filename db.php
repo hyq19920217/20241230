@@ -80,5 +80,16 @@ class Database {
             throw new Exception("搜索词汇失败");
         }
     }
+
+    // 删除词汇
+    public function deleteVocabulary($id) {
+        try {
+            $stmt = $this->conn->prepare("DELETE FROM pm_vocabulary WHERE id = ?");
+            return $stmt->execute([$id]);
+        } catch(PDOException $e) {
+            error_log("Delete failed: " . $e->getMessage());
+            throw new Exception("删除词汇失败");
+        }
+    }
 }
 ?> 

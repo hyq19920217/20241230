@@ -1,12 +1,11 @@
 <?php
-require 'vendor/autoload.php';
 require_once 'db.php';
+require 'vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
 
 try {
     if (!isset($_FILES['file'])) {
@@ -17,46 +16,51 @@ try {
     $spreadsheet = IOFactory::load($inputFileName);
     $worksheet = $spreadsheet->getActiveSheet();
     $rows = $worksheet->toArray();
-
-    // 跳过表头
+    
+    // 跳过标题行
     array_shift($rows);
     
     $db = new Database();
     $errors = [];
-    $success = 0;
-
-    foreach ($rows as $i => $row) {
-        // 跳过空行
-        if (empty(array_filter($row))) continue;
-
-        // 验证必填字段
-        if (empty($row[0]) || empty($row[1]) || empty($row[2]) || empty($row[3]) || empty($row[4])) {
-            $errors[] = "第" . ($i + 2) . "行：缺少必填字段";
-            continue;
-        }
-
+    $successCount = 0;
+    
+    foreach ($rows as $index => $row) {
+        if (empty($row[0])) continue; // 跳过空行
+        
         try {
-            $db->addVocabulary(
-                trim($row[0]), // word
-                trim($row[1]), // partOfSpeech
-                trim($row[2]), // meaning
-                trim($row[3]), // example
-                trim($row[4])  // exampleCn
-            );
-            $success++;
+            $word = trim($row[0]);
+            $partOfSpeech = trim($row[1]);
+            $meaning = trim($row[2]);
+            $example = trim($row[3]);
+            $exampleCn = trim($row[4]);
+            
+            if (empty($word) || empty($partOfSpeech) || empty($meaning)) {
+                throw new Exception("必填字段不能为空");
+            }
+            
+            $db->addVocabulary($word, $partOfSpeech, $meaning, $example, $exampleCn);
+            $successCount++;
         } catch (Exception $e) {
-            $errors[] = "第" . ($i + 2) . "行：" . $e->getMessage();
+            $errors[] = "第" . ($index + 2) . "行: " . $e->getMessage();
         }
     }
-
+    
+    $status = empty($errors) ? 'success' : ($successCount > 0 ? 'partial' : 'error');
+    $message = $successCount . "个词汇导入成功";
+    if (!empty($errors)) {
+        $message .= "，" . count($errors) . "个词汇导入失败";
+    }
+    
     echo json_encode([
-        'status' => empty($errors) ? 'success' : 'partial',
-        'message' => "成功导入 {$success} 条记录" . 
-                    (empty($errors) ? '' : "，失败 " . count($errors) . " 条"),
+        'status' => $status,
+        'message' => $message,
         'errors' => $errors
-    ]);
-
+    ], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
-} 
+    echo json_encode([
+        'status' => 'error',
+        'message' => $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
+}
+?> 

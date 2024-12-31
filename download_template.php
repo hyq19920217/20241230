@@ -11,23 +11,26 @@ header('Cache-Control: max-age=0');
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
-// 设置表头
-$headers = ['单词*', '词性*', '中文含义*', '英语例句*', '例句翻译*', '备注'];
-foreach (range('A', 'F') as $i => $col) {
-    $sheet->setCellValue($col.'1', $headers[$i]);
-    $sheet->getStyle($col.'1')->getFont()->setBold(true);
-}
-
-// 添加示例数据
-$example = [
-    ['agile', 'adj.', '敏捷的，灵活的', 'We follow agile development methodology.', '我们遵循敏捷开发方法论。', '必填字段已标*号'],
-];
-$sheet->fromArray($example, null, 'A2');
+// 设置标题行
+$sheet->setCellValue('A1', '单词');
+$sheet->setCellValue('B1', '词性');
+$sheet->setCellValue('C1', '中文含义');
+$sheet->setCellValue('D1', '英语例句');
+$sheet->setCellValue('E1', '例句翻译');
 
 // 设置列宽
-foreach (range('A', 'F') as $col) {
-    $sheet->getColumnDimension($col)->setAutoSize(true);
-}
+$sheet->getColumnDimension('A')->setWidth(20);
+$sheet->getColumnDimension('B')->setWidth(10);
+$sheet->getColumnDimension('C')->setWidth(30);
+$sheet->getColumnDimension('D')->setWidth(40);
+$sheet->getColumnDimension('E')->setWidth(40);
+
+// 添加示例数据
+$sheet->setCellValue('A2', 'iteration');
+$sheet->setCellValue('B2', 'n.');
+$sheet->setCellValue('C2', '迭代');
+$sheet->setCellValue('D2', 'We need to complete three iterations before the final release.');
+$sheet->setCellValue('E2', '在最终发布前我们需要完成三次迭代。');
 
 $writer = new Xlsx($spreadsheet);
 $writer->save('php://output'); 
