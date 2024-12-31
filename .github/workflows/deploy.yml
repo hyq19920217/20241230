@@ -53,7 +53,13 @@ jobs:
               php81-php-zip \
               php81-php-pdo \
               php81-php-mysqlnd \
-              php81-php-spreadsheet 
+              php81-php-xmlreader \
+              php81-php-xmlwriter
+
+            # 确保使用 PHP 8.1
+            sudo alternatives --set php /usr/bin/php81
+            sudo alternatives --set php-config /usr/bin/php81-config
+            sudo alternatives --set phpize /usr/bin/php81-phpize
 
       - name: Set permissions
         uses: appleboy/ssh-action@master
@@ -100,7 +106,8 @@ jobs:
 
             # 安装 Composer 依赖
             cd /usr/share/nginx/html
-            composer require phpoffice/phpspreadsheet
+            php81 -v  # 检查 PHP 版本
+            php81 $(which composer) require phpoffice/phpspreadsheet
 
       - name: Initialize Database
         uses: appleboy/ssh-action@master
