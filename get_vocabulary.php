@@ -13,9 +13,14 @@ try {
     
     $db = new Database();
     $vocabulary = $db->getVocabularyByLetter($letter);
-    echo json_encode($vocabulary, JSON_UNESCAPED_UNICODE);
+    
+    // 如果没有数据，返回空数组而不是 null
+    echo json_encode($vocabulary ?: [], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    echo json_encode([
+        'status' => 'error',
+        'message' => $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
 }
 ?> 

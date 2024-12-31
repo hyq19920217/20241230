@@ -1,35 +1,45 @@
 <?php
 require_once 'db.php';
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
 try {
-    $raw_data = file_get_contents('php://input');
-    $data = json_decode($raw_data, true);
-
-    if (!isset($data['word']) || !isset($data['partOfSpeech']) || 
-        !isset($data['meaning']) || !isset($data['example']) || 
-        !isset($data['exampleCn'])) {
-        throw new Exception("缺少必要的字段");
+    // 获取 POST 数据
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    if (!$data) {
+        throw new Exception("无效的数据格式");
     }
-
+    
+    // 验证必填字段
+    $required = ['word', 'partOfSpeech', 'meaning', 'example', 'exampleCn'];
+    foreach ($required as $field) {
+        if (empty($data[$field])) {
+            throw new Exception("字段 {$field} 不能为空");
+        }
+    }
+    
     $db = new Database();
-    if ($db->addVocabulary(
+    $result = $db->addVocabulary(
         $data['word'],
         $data['partOfSpeech'],
         $data['meaning'],
         $data['example'],
         $data['exampleCn']
-    )) {
-        echo json_encode(['status' => 'success']);
-    } else {
-        throw new Exception("添加词汇失败");
-    }
+    );
+    
+    echo json_encode([
+        'status' => 'success',
+        'message' => '添加成功'
+    ], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    echo json_encode([
+        'status' => 'error',
+        'message' => $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
 }
 ?> 
