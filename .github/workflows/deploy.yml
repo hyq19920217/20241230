@@ -49,7 +49,9 @@ jobs:
             sudo yum install -y php81-php php81-php-fpm \
               php81-php-gd php81-php-mbstring \
               php81-php-xml php81-php-dom \
-              php81-php-zip 
+              php81-php-zip \
+              php81-php-pdo \
+              php81-php-mysqlnd 
 
       - name: Set permissions
         uses: appleboy/ssh-action@master
