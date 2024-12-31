@@ -16,7 +16,24 @@ try {
     }
 
     error_log("File received: " . print_r($_FILES, true));
+    
+    // 检查文件类型
+    $fileType = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
+    if (!in_array($fileType, ['xlsx', 'xls'])) {
+        throw new Exception("请上传 Excel 文件 (.xlsx 或 .xls)");
+    }
+    
+    // 检查文件大小
+    if ($_FILES['file']['size'] > 5000000) { // 5MB 限制
+        throw new Exception("文件大小超过限制");
+    }
+    
     $inputFileName = $_FILES['file']['tmp_name'];
+    if (!file_exists($inputFileName)) {
+        throw new Exception("文件上传失败");
+    }
+    
+    error_log("Loading file: " . $inputFileName);
     $spreadsheet = IOFactory::load($inputFileName);
     
     // 检查是否成功加载

@@ -204,9 +204,20 @@
             e.preventDefault();
             const formData = new FormData();
             const fileInput = document.getElementById('excelFile');
+            const resultDiv = document.getElementById('importResult');
+            
+            resultDiv.innerHTML = '<div class="message">正在上传...</div>';
             
             if (fileInput.files.length === 0) {
                 alert('请选择文件');
+                return;
+            }
+
+            // 检查文件类型
+            const fileName = fileInput.files[0].name;
+            const fileExt = fileName.split('.').pop().toLowerCase();
+            if (!['xlsx', 'xls'].includes(fileExt)) {
+                resultDiv.innerHTML = '<div class="message error">请选择 Excel 文件 (.xlsx 或 .xls)</div>';
                 return;
             }
 
@@ -216,9 +227,15 @@
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
-                const resultDiv = document.getElementById('importResult');
                 resultDiv.innerHTML = `<p>${data.message}</p>`;
                 resultDiv.className = data.status === 'success' ? 'message success' : 'message error';
                 
@@ -239,8 +256,8 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('importResult').innerHTML = 
-                    `<p class="error">导入失败：${error.message}</p>`;
+                resultDiv.innerHTML = 
+                    `<p class="message error">导入失败：${error.message}</p>`;
             });
         };
 
