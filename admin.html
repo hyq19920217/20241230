@@ -253,7 +253,14 @@
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 const resultDiv = document.getElementById('addResult');
                 if (data.status === 'success') {
@@ -268,7 +275,7 @@
             .catch(error => {
                 console.error('Error:', error);
                 const resultDiv = document.getElementById('addResult');
-                resultDiv.innerHTML = '添加失败：' + error.message;
+                resultDiv.innerHTML = '添加失败：' + error.message + '<br>详细错误：' + error;
                 resultDiv.className = 'message error';
             });
         };

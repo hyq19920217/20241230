@@ -73,21 +73,26 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            # 停止旧版 PHP-FPM
-            sudo systemctl stop php-fpm
-            sudo systemctl disable php-fpm
+            # 停止所有 PHP-FPM
+            sudo systemctl stop php-fpm || true
+            sudo systemctl disable php-fpm || true
+            sudo systemctl stop php81-php-fpm || true
+            
+            # 确保端口没有被占用
+            sudo kill -9 $(sudo lsof -t -i:9000) || true
+            
+            # 配置 PHP-FPM
+            sudo sed -i 's/user = apache/user = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
+            sudo sed -i 's/group = apache/group = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
+            sudo sed -i 's/listen.owner = apache/listen.owner = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
+            sudo sed -i 's/listen.group = apache/listen.group = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             
             # 启动新版 PHP-FPM
             sudo systemctl start php81-php-fpm
             sudo systemctl enable php81-php-fpm
             
-            # 只在 composer.json 发生变化时安装依赖
-            cd /usr/share/nginx/html
-            if [ -f composer.json ]; then
-              sudo chown -R lighthouse:lighthouse .
-              php81 /usr/local/bin/composer install --no-interaction
-              sudo chown -R nginx:nginx .
-            fi 
+            # 验证服务状态
+            sudo systemctl status php81-php-fpm
 
       - name: Initialize Database
         uses: appleboy/ssh-action@master

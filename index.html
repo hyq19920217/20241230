@@ -166,7 +166,14 @@
             list.innerHTML = '<div class="loading">加载中...</div>';
             
             fetch(`get_vocabulary.php?letter=${letter}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.length === 0) {
                         list.innerHTML = '<div class="loading">暂无数据</div>';
@@ -186,7 +193,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    list.innerHTML = '<div class="loading">加载失败</div>';
+                    list.innerHTML = `<div class="loading">加载失败：${error.message}</div>`;
                 });
         }
 
