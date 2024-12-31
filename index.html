@@ -40,7 +40,7 @@
     </div>
     <script>
         function loadContent() {
-            fetch('content.json?' + new Date().getTime())
+            fetch('get_content.php?' + new Date().getTime())
                 .then(response => response.text())
                 .then(text => {
                     try {
