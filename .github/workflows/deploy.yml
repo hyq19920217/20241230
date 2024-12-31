@@ -112,7 +112,8 @@ jobs:
             # 安装 Composer 依赖
             cd /usr/share/nginx/html
             /usr/bin/php81 -v  # 检查 PHP 版本
-            /usr/bin/php81 /usr/local/bin/composer require phpoffice/phpspreadsheet
+            /usr/bin/php81 /usr/local/bin/composer install --no-dev
+            /usr/bin/php81 /usr/local/bin/composer dump-autoload -o
 
       - name: Initialize Database
         uses: appleboy/ssh-action@master

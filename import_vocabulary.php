@@ -1,4 +1,8 @@
 <?php
+// 确保不显示 HTML 错误页面
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
 require_once 'db.php';
 require 'vendor/autoload.php';
 
@@ -12,6 +16,11 @@ try {
     error_log("Starting file import...");
     error_log("PHP version: " . phpversion());
     error_log("Loaded extensions: " . implode(", ", get_loaded_extensions()));
+    
+    // 检查 vendor 目录是否存在
+    if (!file_exists('vendor/autoload.php')) {
+        throw new Exception("Composer dependencies not installed");
+    }
     
     if (!isset($_FILES['file'])) {
         throw new Exception("请选择文件");
@@ -40,7 +49,12 @@ try {
     }
     
     error_log("Loading file: " . $inputFileName);
-    $spreadsheet = IOFactory::load($inputFileName);
+    try {
+        $spreadsheet = IOFactory::load($inputFileName);
+    } catch (Exception $e) {
+        error_log("Failed to load spreadsheet: " . $e->getMessage());
+        throw new Exception("Excel 文件格式错误或损坏");
+    }
     
     // 检查是否成功加载
     if (!$spreadsheet) {
@@ -104,10 +118,18 @@ try {
         'errors' => $errors
     ], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
+    error_log("Import error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage()
+        'message' => $e->getMessage(),
+        'debug' => [
+            'php_version' => phpversion(),
+            'extensions' => get_loaded_extensions(),
+            'cwd' => getcwd(),
+            'tmp_dir' => sys_get_temp_dir()
+        ]
     ], JSON_UNESCAPED_UNICODE);
 }
+exit;
 ?> 
