@@ -261,7 +261,24 @@
                         <p>导入失败：${error.message}</p>
                         <details>
                             <summary>调试信息</summary>
-                            <pre>${JSON.stringify(error.debug, null, 2)}</pre>
+                            <pre style="white-space: pre-wrap; word-break: break-all;">
+                                Response Status: ${error.status || 'N/A'}
+                                Error Message: ${error.message || 'N/A'}
+                                Debug Info:
+                                ${error.response ? JSON.stringify(error.response, null, 2) : 'No response data'}
+                                
+                                Server Response:
+                                ${error.body || 'No response body'}
+                                
+                                Stack Trace:
+                                ${error.stack || 'No stack trace available'}
+                            </pre>
+                        </details>
+                        <details>
+                            <summary>PHP 错误日志</summary>
+                            <div id="phpErrorLog">
+                                <button onclick="fetchPhpErrorLog()">加载 PHP 错误日志</button>
+                            </div>
                         </details>
                     </div>`;
             });
@@ -374,6 +391,20 @@
                 console.error('Error:', error);
                 alert('删除失败：' + error.message);
             });
+        }
+
+        // 添加获取 PHP 错误日志的函数
+        function fetchPhpErrorLog() {
+            fetch('get_error_log.php')
+                .then(response => response.text())
+                .then(log => {
+                    document.getElementById('phpErrorLog').innerHTML = 
+                        `<pre style="max-height: 300px; overflow: auto;">${log}</pre>`;
+                })
+                .catch(error => {
+                    document.getElementById('phpErrorLog').innerHTML = 
+                        `<p class="error">无法获取错误日志: ${error.message}</p>`;
+                });
         }
 
         // 初始加载词汇列表

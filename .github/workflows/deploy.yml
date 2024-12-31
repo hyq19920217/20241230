@@ -97,6 +97,12 @@ jobs:
             sudo sed -i 's/display_errors = Off/display_errors = On/' /etc/opt/remi/php81/php.ini
             sudo sed -i 's/log_errors = Off/log_errors = On/' /etc/opt/remi/php81/php.ini
             
+            # 设置错误日志权限
+            sudo mkdir -p /var/opt/remi/php81/log/php-fpm/
+            sudo chown -R nginx:nginx /var/opt/remi/php81/log/php-fpm/
+            sudo chmod 755 /var/opt/remi/php81/log/php-fpm/
+            sudo chmod 644 /var/opt/remi/php81/log/php-fpm/error.log || true
+            
             # 配置文件上传
             sudo sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 10M/' /etc/opt/remi/php81/php.ini
             sudo sed -i 's/post_max_size = 8M/post_max_size = 10M/' /etc/opt/remi/php81/php.ini
