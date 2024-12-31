@@ -84,7 +84,7 @@ class Database {
             // 检查是否已存在
             $stmt = $this->conn->prepare(
                 "SELECT id FROM pm_vocabulary 
-                WHERE LOWER(REGEXP_REPLACE(word, '[^a-zA-Z0-9]', '')) = ?"
+                WHERE LOWER(REPLACE(word, ' ', '')) = LOWER(REPLACE(?, ' ', ''))"
             );
             $stmt->execute([$normalizedWord]);
             $existing = $stmt->fetch(PDO::FETCH_ASSOC);

@@ -90,7 +90,7 @@ try {
             $normalizedWord = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $word));
             $stmt = $db->conn->prepare(
                 "SELECT id FROM pm_vocabulary 
-                WHERE LOWER(REGEXP_REPLACE(word, '[^a-zA-Z0-9]', '')) = ?"
+                WHERE LOWER(REPLACE(word, ' ', '')) = LOWER(REPLACE(?, ' ', ''))"
             );
             $stmt->execute([$normalizedWord]);
             $isUpdate = $stmt->fetch(PDO::FETCH_ASSOC) !== false;
