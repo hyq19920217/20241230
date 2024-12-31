@@ -2,8 +2,9 @@
 header('Content-Type: text/plain; charset=utf-8');
 
 // 安全检查
-if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || 
-    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+// 允许从同一域名访问
+if (!isset($_SERVER['HTTP_REFERER']) || 
+    !strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST'])) {
     die('Direct access not permitted');
 }
 
