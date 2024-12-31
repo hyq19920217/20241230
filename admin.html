@@ -199,43 +199,72 @@
     </div>
 
     <script>
+        // 创建一个数组来存储控制台日志
+        const consoleLogs = [];
+        
+        // 重写 console.log 和 console.error
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function() {
+            consoleLogs.push(`[LOG] ${Array.from(arguments).join(' ')}`);
+            originalLog.apply(console, arguments);
+        };
+        
+        console.error = function() {
+            consoleLogs.push(`[ERROR] ${Array.from(arguments).join(' ')}`);
+            originalError.apply(console, arguments);
+        };
+
         // Excel 导入处理
         document.getElementById('importForm').onsubmit = function(e) {
             e.preventDefault();
+            // 清空之前的日志
+            consoleLogs.length = 0;
+            
             const formData = new FormData();
             const fileInput = document.getElementById('excelFile');
             const resultDiv = document.getElementById('importResult');
             
+            // 显示上传开始
             resultDiv.innerHTML = '<div class="message">正在上传...</div>';
+            
+            // 记录每个步骤
+            console.log('1. 开始处理文件上传');
+            console.log('文件信息:', fileInput.files[0]);
             
             if (fileInput.files.length === 0) {
                 alert('请选择文件');
                 return;
             }
 
-            // 检查文件类型
-            const fileName = fileInput.files[0].name;
-            const fileExt = fileName.split('.').pop().toLowerCase();
-            if (!['xlsx', 'xls'].includes(fileExt)) {
-                resultDiv.innerHTML = '<div class="message error">请选择 Excel 文件 (.xlsx 或 .xls)</div>';
-                return;
-            }
-
             formData.append('file', fileInput.files[0]);
+
+            // 显示发送的数据
+            console.log('2. 准备发送请求');
+            console.log('FormData 内容:', Array.from(formData.entries()));
 
             fetch('import_vocabulary.php', {
                 method: 'POST',
                 body: formData
             })
             .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
-                    });
-                }
-                return response.json();
+                console.log('3. 收到服务器响应');
+                console.log('响应状态:', response.status);
+                console.log('响应头:', Array.from(response.headers.entries()));
+                
+                // 尝试读取响应内容
+                return response.text().then(text => {
+                    console.log('4. 响应内容:', text);
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        throw new Error(`解析响应失败: ${text}\n\n原始错误: ${e.message}`);
+                    }
+                });
             })
             .then(data => {
+                console.log('5. 处理响应数据:', data);
                 resultDiv.innerHTML = `<p>${data.message}</p>`;
                 resultDiv.className = data.status === 'success' ? 'message success' : 'message error';
                 
@@ -255,7 +284,7 @@
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('6. 发生错误:', error);
                 resultDiv.innerHTML = 
                     `<div class="message error">
                         <p>导入失败：${error.message}</p>
@@ -272,6 +301,9 @@
                                 
                                 Stack Trace:
                                 ${error.stack || 'No stack trace available'}
+                                
+                                Console Log:
+                                ${consoleLogs.join('\n')}
                             </pre>
                         </details>
                         <details>
@@ -281,6 +313,8 @@
                             </div>
                         </details>
                     </div>`;
+                // 自动加载 PHP 错误日志
+                fetchPhpErrorLog();
             });
         };
 
@@ -395,16 +429,20 @@
 
         // 添加获取 PHP 错误日志的函数
         function fetchPhpErrorLog() {
-            fetch('get_error_log.php')
-                .then(response => response.text())
-                .then(log => {
-                    document.getElementById('phpErrorLog').innerHTML = 
-                        `<pre style="max-height: 300px; overflow: auto;">${log}</pre>`;
-                })
-                .catch(error => {
-                    document.getElementById('phpErrorLog').innerHTML = 
-                        `<p class="error">无法获取错误日志: ${error.message}</p>`;
-                });
+            fetch('get_error_log.php', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(log => {
+                document.getElementById('phpErrorLog').innerHTML = 
+                    `<pre style="max-height: 300px; overflow: auto;">${log}</pre>`;
+            })
+            .catch(error => {
+                document.getElementById('phpErrorLog').innerHTML = 
+                    `<p class="error">无法获取错误日志: ${error.message}</p>`;
+            });
         }
 
         // 初始加载词汇列表

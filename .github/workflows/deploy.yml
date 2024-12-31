@@ -31,19 +31,29 @@ jobs:
             chown -R nginx:nginx /usr/share/nginx/html/
             chmod 755 /usr/share/nginx/html/*.html
             chmod 755 /usr/share/nginx/html/*.php
+            chmod 644 /usr/share/nginx/html/nginx/*.conf
+            
             # 创建并设置临时目录权限
             sudo mkdir -p /usr/share/nginx/html/tmp
             sudo chown -R nginx:nginx /usr/share/nginx/html/tmp
-            sudo chmod 777 /usr/share/nginx/html/tmp
+            sudo chmod 755 /usr/share/nginx/html/tmp
             
-            # 设置上传文件大小限制
-            sudo sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 10M/' /etc/opt/remi/php81/php.ini
-            sudo sed -i 's/post_max_size = 8M/post_max_size = 10M/' /etc/opt/remi/php81/php.ini
+            # 设置目录权限
+            sudo chmod 755 /usr/share/nginx/html/vendor
+            sudo chmod 755 /usr/share/nginx/html/db
+            sudo chmod 644 /usr/share/nginx/html/db/*
+            sudo chmod 644 /usr/share/nginx/html/vendor/**/*
             
             # 复制并应用 nginx 配置
             if [ -f /usr/share/nginx/html/nginx/nginx.conf ]; then
               cp /usr/share/nginx/html/nginx/nginx.conf /etc/nginx/nginx.conf
-              nginx -t && systemctl restart nginx
+              # 检查配置是否正确
+              if nginx -t; then
+                echo "Nginx configuration is valid"
+              else
+                echo "Nginx configuration is invalid"
+                exit 1
+              fi
             fi 
 
       - name: Install PHP and extensions
@@ -104,16 +114,38 @@ jobs:
             sudo chmod 644 /var/opt/remi/php81/log/php-fpm/error.log || true
             
             # 配置文件上传
-            sudo sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 10M/' /etc/opt/remi/php81/php.ini
-            sudo sed -i 's/post_max_size = 8M/post_max_size = 10M/' /etc/opt/remi/php81/php.ini
+            sudo sed -i 's/upload_max_filesize = .*/upload_max_filesize = 20M/' /etc/opt/remi/php81/php.ini
+            sudo sed -i 's/post_max_size = .*/post_max_size = 21M/' /etc/opt/remi/php81/php.ini
+            sudo sed -i 's/memory_limit = .*/memory_limit = 256M/' /etc/opt/remi/php81/php.ini
+            sudo sed -i 's/max_execution_time = .*/max_execution_time = 300/' /etc/opt/remi/php81/php.ini
+            sudo sed -i 's/max_input_time = .*/max_input_time = 300/' /etc/opt/remi/php81/php.ini
             sudo sed -i 's/;upload_tmp_dir =/upload_tmp_dir = \/usr\/share\/nginx\/html\/tmp/' /etc/opt/remi/php81/php.ini
             
-            # 启动新版 PHP-FPM
-            sudo systemctl restart php81-php-fpm
-            sudo systemctl enable php81-php-fpm
+            # 确保临时目录存在并有正确权限
+            sudo mkdir -p /usr/share/nginx/html/tmp
+            sudo chown -R nginx:nginx /usr/share/nginx/html/tmp
+            sudo chmod 777 /usr/share/nginx/html/tmp
+            
+            # 重启所有服务
+            echo "Restarting services..."
+            sudo systemctl restart php81-php-fpm || {
+                echo "Failed to restart PHP-FPM"
+                exit 1
+            }
+            sudo systemctl restart nginx || {
+                echo "Failed to restart Nginx"
+                exit 1
+            }
             
             # 验证服务状态
+            echo "Checking service status..."
             sudo systemctl status php81-php-fpm
+            sudo systemctl status nginx
+            
+            # 检查日志文件权限
+            echo "Checking log files..."
+            ls -la /var/opt/remi/php81/log/php-fpm/
+            ls -la /var/log/nginx/
 
             # 安装 Composer 依赖
             cd /usr/share/nginx/html
@@ -128,4 +160,15 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
+            # 检查数据库是否存在
+            if ! mysql -uroot -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "USE content_db"; then
+                echo "Creating database..."
+                mysql -uroot -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS content_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+            fi
+            
+            # 导入数据库结构
             sudo mysql -uroot -p${{ secrets.MYSQL_ROOT_PASSWORD }} content_db < /usr/share/nginx/html/db/init.sql 
+            
+            # 检查数据库表是否创建成功
+            echo "Checking database tables..."
+            mysql -uroot -p${{ secrets.MYSQL_ROOT_PASSWORD }} content_db -e "SHOW TABLES;" 
