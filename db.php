@@ -51,6 +51,18 @@ class Database {
         }
     }
 
+    // 获取所有词汇
+    public function getAllVocabulary() {
+        try {
+            $stmt = $this->conn->prepare("SELECT * FROM pm_vocabulary ORDER BY word");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Query failed: " . $e->getMessage());
+            throw new Exception("获取词汇列表失败");
+        }
+    }
+
     // 添加新词汇
     public function addVocabulary($word, $partOfSpeech, $meaning, $example, $exampleCn) {
         try {

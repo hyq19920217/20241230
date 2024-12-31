@@ -5,14 +5,19 @@ header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
 try {
-    $letter = isset($_GET['letter']) ? strtoupper($_GET['letter']) : 'A';
-    
-    if (!preg_match('/^[A-Z]$/', $letter)) {
-        throw new Exception("无效的字母参数");
-    }
-    
     $db = new Database();
-    $vocabulary = $db->getVocabularyByLetter($letter);
+    
+    if (isset($_GET['letter'])) {
+        // 如果指定了字母，获取该字母开头的词汇
+        $letter = strtoupper($_GET['letter']);
+        if (!preg_match('/^[A-Z]$/', $letter)) {
+            throw new Exception("无效的字母参数");
+        }
+        $vocabulary = $db->getVocabularyByLetter($letter);
+    } else {
+        // 如果没有指定字母，获取所有词汇
+        $vocabulary = $db->getAllVocabulary();
+    }
     
     // 如果没有数据，返回空数组而不是 null
     echo json_encode($vocabulary ?: [], JSON_UNESCAPED_UNICODE);
