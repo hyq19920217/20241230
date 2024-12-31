@@ -96,4 +96,4 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            sudo mysql content_db < /usr/share/nginx/html/db/init.sql 
+            sudo mysql -uroot -p${{ secrets.MYSQL_ROOT_PASSWORD }} content_db < /usr/share/nginx/html/db/init.sql 
