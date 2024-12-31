@@ -129,7 +129,7 @@ jobs:
             sudo chmod 777 /usr/share/nginx/html/tmp
             
             # 重启前检查 PHP-FPM 配置
-            sudo /usr/sbin/php-fpm81 -t || {
+            sudo /opt/remi/php81/root/sbin/php-fpm --test || {
                 echo "PHP-FPM configuration test failed"
                 exit 1
             }
