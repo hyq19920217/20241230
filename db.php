@@ -63,15 +63,58 @@ class Database {
         }
     }
 
+    // 获取词汇总数
+    public function getVocabularyCount() {
+        try {
+            $stmt = $this->conn->query("SELECT COUNT(*) as total FROM pm_vocabulary");
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['total'];
+        } catch(PDOException $e) {
+            error_log("Count query failed: " . $e->getMessage());
+            throw new Exception("获取词汇总数失败");
+        }
+    }
+
     // 添加新词汇
     public function addVocabulary($word, $partOfSpeech, $meaning, $example, $exampleCn) {
         try {
+            // 标准化单词格式（去除空格和符号，转小写）
+            $normalizedWord = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $word));
+            
+            // 检查是否已存在
+            $stmt = $this->conn->prepare(
+                "SELECT id FROM pm_vocabulary 
+                WHERE LOWER(REGEXP_REPLACE(word, '[^a-zA-Z0-9]', '')) = ?"
+            );
+            $stmt->execute([$normalizedWord]);
+            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+            
             $letter = strtoupper(substr($word, 0, 1));
-            $stmt = $this->conn->prepare("INSERT INTO pm_vocabulary (word, part_of_speech, meaning, example, example_cn, letter) VALUES (?, ?, ?, ?, ?, ?)");
-            return $stmt->execute([$word, $partOfSpeech, $meaning, $example, $exampleCn, $letter]);
+            
+            if ($existing) {
+                // 更新已存在的记录
+                $stmt = $this->conn->prepare(
+                    "UPDATE pm_vocabulary 
+                    SET word = ?, part_of_speech = ?, meaning = ?, 
+                        example = ?, example_cn = ?, letter = ? 
+                    WHERE id = ?"
+                );
+                return $stmt->execute([
+                    $word, $partOfSpeech, $meaning, 
+                    $example, $exampleCn, $letter, 
+                    $existing['id']
+                ]);
+            } else {
+                // 插入新记录
+                $stmt = $this->conn->prepare(
+                    "INSERT INTO pm_vocabulary (word, part_of_speech, meaning, example, example_cn, letter) 
+                    VALUES (?, ?, ?, ?, ?, ?)"
+                );
+                return $stmt->execute([$word, $partOfSpeech, $meaning, $example, $exampleCn, $letter]);
+            }
         } catch(PDOException $e) {
             error_log("Insert failed: " . $e->getMessage());
-            throw new Exception("添加词汇失败");
+            throw new Exception("添加或更新词汇失败");
         }
     }
 

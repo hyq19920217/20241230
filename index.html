@@ -122,11 +122,20 @@
             gap: 20px;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         }
+        .count-badge {
+            font-size: 0.6em;
+            background: #4CAF50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>产品经理英语词汇宝典</h1>
+        <h1>产品经理英语词汇宝典 <span id="vocabularyCount" class="count-badge">加载中...</span></h1>
         
         <div class="search-box">
             <input type="text" class="search-input" id="searchInput" placeholder="搜索单词...">
@@ -181,6 +190,7 @@
         // 加载词汇列表
         function loadVocabulary() {
             const list = document.getElementById('vocabularyList');
+            const countSpan = document.getElementById('vocabularyCount');
             list.innerHTML = '<div class="loading">加载中...</div>';
             
             fetch('get_vocabulary.php')
@@ -196,6 +206,7 @@
                     console.log('Received data:', data);
                     if (data.length === 0) {
                         list.innerHTML = '<div class="loading">暂无数据</div>';
+                        countSpan.textContent = '0 个词汇';
                         return;
                     }
 
@@ -231,6 +242,7 @@
                                 </div>
                             </div>
                         `).join('');
+                    countSpan.textContent = data.length + ' 个词汇';
                 })
                 .catch(error => {
                     console.error('Error:', error);
