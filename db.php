@@ -38,5 +38,47 @@ class Database {
             throw new Exception("更新内容失败");
         }
     }
+    
+    // 获取指定字母开头的词汇
+    public function getVocabularyByLetter($letter) {
+        try {
+            $stmt = $this->conn->prepare("SELECT * FROM pm_vocabulary WHERE letter = ? ORDER BY word");
+            $stmt->execute([$letter]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Query failed: " . $e->getMessage());
+            throw new Exception("获取词汇列表失败");
+        }
+    }
+
+    // 添加新词汇
+    public function addVocabulary($word, $partOfSpeech, $meaning, $example, $exampleCn) {
+        try {
+            $letter = strtoupper(substr($word, 0, 1));
+            $stmt = $this->conn->prepare("INSERT INTO pm_vocabulary (word, part_of_speech, meaning, example, example_cn, letter) VALUES (?, ?, ?, ?, ?, ?)");
+            return $stmt->execute([$word, $partOfSpeech, $meaning, $example, $exampleCn, $letter]);
+        } catch(PDOException $e) {
+            error_log("Insert failed: " . $e->getMessage());
+            throw new Exception("添加词汇失败");
+        }
+    }
+
+    // 搜索词汇
+    public function searchVocabulary($term) {
+        try {
+            $term = "%$term%";
+            $stmt = $this->conn->prepare(
+                "SELECT * FROM pm_vocabulary 
+                WHERE word LIKE ? 
+                OR meaning LIKE ? 
+                ORDER BY word"
+            );
+            $stmt->execute([$term, $term]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Search failed: " . $e->getMessage());
+            throw new Exception("搜索词汇失败");
+        }
+    }
 }
 ?> 

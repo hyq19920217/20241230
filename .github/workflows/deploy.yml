@@ -17,7 +17,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: "*.html,*.php,config.php,db.php,nginx/**"
+          source: "*.html,*.php,config.php,db.php,nginx/**,vendor/**"
           target: "/usr/share/nginx/html"
           
       - name: Set file permissions and configure nginx
@@ -37,3 +37,44 @@ jobs:
               cp /usr/share/nginx/html/nginx/nginx.conf /etc/nginx/nginx.conf
               nginx -t && systemctl restart nginx
             fi 
+
+      - name: Install PHP and extensions
+        uses: appleboy/ssh-action@master
+        with:
+          script: |
+            # 安装必要的 PHP 版本和扩展
+            sudo yum install -y php81-php php81-php-fpm \
+              php81-php-gd php81-php-mbstring \
+              php81-php-xml php81-php-dom \
+              php81-php-zip 
+
+      - name: Set permissions
+        uses: appleboy/ssh-action@master
+        with:
+          script: |
+            # 创建必要的目录
+            sudo mkdir -p /var/opt/remi/php81/run/php-fpm/
+            sudo mkdir -p /var/opt/remi/php81/log/php-fpm/
+            
+            # 设置权限
+            sudo chown -R nginx:nginx /var/opt/remi/php81/run/php-fpm/
+            sudo chown -R nginx:nginx /var/opt/remi/php81/log/php-fpm/ 
+
+      - name: Configure PHP
+        uses: appleboy/ssh-action@master
+        with:
+          script: |
+            # 停止旧版 PHP-FPM
+            sudo systemctl stop php-fpm
+            sudo systemctl disable php-fpm
+            
+            # 启动新版 PHP-FPM
+            sudo systemctl start php81-php-fpm
+            sudo systemctl enable php81-php-fpm
+            
+            # 安装 PhpSpreadsheet
+            cd /usr/share/nginx/html
+            sudo chown -R lighthouse:lighthouse .
+            rm -f composer.lock
+            php81 /usr/local/bin/composer install --no-interaction
+            sudo chown -R nginx:nginx . 
