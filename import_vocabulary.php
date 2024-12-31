@@ -10,12 +10,18 @@ header('Access-Control-Allow-Origin: *');
 try {
     // 添加调试信息
     error_log("Starting file import...");
+    error_log("PHP version: " . phpversion());
+    error_log("Loaded extensions: " . implode(", ", get_loaded_extensions()));
     
     if (!isset($_FILES['file'])) {
         throw new Exception("请选择文件");
     }
 
     error_log("File received: " . print_r($_FILES, true));
+    error_log("Upload error code: " . $_FILES['file']['error']);
+    error_log("Upload tmp name: " . $_FILES['file']['tmp_name']);
+    error_log("Current working directory: " . getcwd());
+    error_log("Temp directory: " . sys_get_temp_dir());
     
     // 检查文件类型
     $fileType = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);

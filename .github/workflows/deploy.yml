@@ -31,7 +31,14 @@ jobs:
             chown -R nginx:nginx /usr/share/nginx/html/
             chmod 755 /usr/share/nginx/html/*.html
             chmod 755 /usr/share/nginx/html/*.php
-            chmod 777 /usr/share/nginx/html/tmp
+            # 创建并设置临时目录权限
+            sudo mkdir -p /usr/share/nginx/html/tmp
+            sudo chown -R nginx:nginx /usr/share/nginx/html/tmp
+            sudo chmod 777 /usr/share/nginx/html/tmp
+            
+            # 设置上传文件大小限制
+            sudo sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 10M/' /etc/opt/remi/php81/php.ini
+            sudo sed -i 's/post_max_size = 8M/post_max_size = 10M/' /etc/opt/remi/php81/php.ini
             
             # 复制并应用 nginx 配置
             if [ -f /usr/share/nginx/html/nginx/nginx.conf ]; then
@@ -78,22 +85,25 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            # 停止所有 PHP-FPM
-            sudo systemctl stop php-fpm || true
-            sudo systemctl disable php-fpm || true
-            sudo systemctl stop php81-php-fpm || true
-            
-            # 确保端口没有被占用
-            sudo kill -9 $(sudo lsof -t -i:9000) || true
-            
             # 配置 PHP-FPM
             sudo sed -i 's/user = apache/user = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             sudo sed -i 's/group = apache/group = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             sudo sed -i 's/listen.owner = apache/listen.owner = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             sudo sed -i 's/listen.group = apache/listen.group = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             
+            # 配置 PHP 错误日志
+            sudo sed -i 's/;error_log = php_errors.log/error_log = \/var\/opt\/remi\/php81\/log\/php-fpm\/error.log/' /etc/opt/remi/php81/php.ini
+            sudo sed -i 's/error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT/error_reporting = E_ALL/' /etc/opt/remi/php81/php.ini
+            sudo sed -i 's/display_errors = Off/display_errors = On/' /etc/opt/remi/php81/php.ini
+            sudo sed -i 's/log_errors = Off/log_errors = On/' /etc/opt/remi/php81/php.ini
+            
+            # 配置文件上传
+            sudo sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 10M/' /etc/opt/remi/php81/php.ini
+            sudo sed -i 's/post_max_size = 8M/post_max_size = 10M/' /etc/opt/remi/php81/php.ini
+            sudo sed -i 's/;upload_tmp_dir =/upload_tmp_dir = \/usr\/share\/nginx\/html\/tmp/' /etc/opt/remi/php81/php.ini
+            
             # 启动新版 PHP-FPM
-            sudo systemctl start php81-php-fpm
+            sudo systemctl restart php81-php-fpm
             sudo systemctl enable php81-php-fpm
             
             # 验证服务状态
