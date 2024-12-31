@@ -17,7 +17,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: "*.html,*.php,*.json,nginx/**"
+          source: "*.html,*.php,config.php,db.php,nginx/**"
           target: "/usr/share/nginx/html"
           
       - name: Set file permissions and configure nginx
@@ -31,7 +31,6 @@ jobs:
             chown -R nginx:nginx /usr/share/nginx/html/
             chmod 755 /usr/share/nginx/html/*.html
             chmod 755 /usr/share/nginx/html/*.php
-            chmod 666 /usr/share/nginx/html/content.json
             
             # 复制并应用 nginx 配置
             if [ -f /usr/share/nginx/html/nginx/nginx.conf ]; then
