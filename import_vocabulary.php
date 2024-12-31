@@ -16,6 +16,9 @@ try {
     error_log("Starting file import...");
     error_log("PHP version: " . phpversion());
     error_log("Loaded extensions: " . implode(", ", get_loaded_extensions()));
+    error_log("POST data: " . print_r($_POST, true));
+    error_log("FILES data: " . print_r($_FILES, true));
+    error_log("Server info: " . print_r($_SERVER, true));
     
     // 检查 vendor 目录是否存在
     if (!file_exists('vendor/autoload.php')) {
@@ -127,7 +130,17 @@ try {
             'php_version' => phpversion(),
             'extensions' => get_loaded_extensions(),
             'cwd' => getcwd(),
-            'tmp_dir' => sys_get_temp_dir()
+            'tmp_dir' => sys_get_temp_dir(),
+            'file_info' => isset($_FILES['file']) ? [
+                'name' => $_FILES['file']['name'],
+                'type' => $_FILES['file']['type'],
+                'size' => $_FILES['file']['size'],
+                'error' => $_FILES['file']['error'],
+                'tmp_name' => $_FILES['file']['tmp_name']
+            ] : 'No file uploaded',
+            'error_trace' => $e->getTraceAsString(),
+            'error_file' => $e->getFile(),
+            'error_line' => $e->getLine()
         ]
     ], JSON_UNESCAPED_UNICODE);
 }

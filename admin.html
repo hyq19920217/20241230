@@ -257,7 +257,13 @@
             .catch(error => {
                 console.error('Error:', error);
                 resultDiv.innerHTML = 
-                    `<p class="message error">导入失败：${error.message}</p>`;
+                    `<div class="message error">
+                        <p>导入失败：${error.message}</p>
+                        <details>
+                            <summary>调试信息</summary>
+                            <pre>${JSON.stringify(error.debug, null, 2)}</pre>
+                        </details>
+                    </div>`;
             });
         };
 
