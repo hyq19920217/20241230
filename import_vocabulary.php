@@ -8,12 +8,22 @@ header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
 try {
+    // 添加调试信息
+    error_log("Starting file import...");
+    
     if (!isset($_FILES['file'])) {
         throw new Exception("请选择文件");
     }
 
+    error_log("File received: " . print_r($_FILES, true));
     $inputFileName = $_FILES['file']['tmp_name'];
     $spreadsheet = IOFactory::load($inputFileName);
+    
+    // 检查是否成功加载
+    if (!$spreadsheet) {
+        throw new Exception("无法加载 Excel 文件");
+    }
+    
     $worksheet = $spreadsheet->getActiveSheet();
     $rows = $worksheet->toArray();
     

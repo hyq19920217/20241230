@@ -31,6 +31,7 @@ jobs:
             chown -R nginx:nginx /usr/share/nginx/html/
             chmod 755 /usr/share/nginx/html/*.html
             chmod 755 /usr/share/nginx/html/*.php
+            chmod 777 /usr/share/nginx/html/tmp
             
             # 复制并应用 nginx 配置
             if [ -f /usr/share/nginx/html/nginx/nginx.conf ]; then
@@ -51,7 +52,8 @@ jobs:
               php81-php-xml php81-php-dom \
               php81-php-zip \
               php81-php-pdo \
-              php81-php-mysqlnd 
+              php81-php-mysqlnd \
+              php81-php-spreadsheet 
 
       - name: Set permissions
         uses: appleboy/ssh-action@master
@@ -95,6 +97,10 @@ jobs:
             
             # 验证服务状态
             sudo systemctl status php81-php-fpm
+
+            # 安装 Composer 依赖
+            cd /usr/share/nginx/html
+            composer require phpoffice/phpspreadsheet
 
       - name: Initialize Database
         uses: appleboy/ssh-action@master
