@@ -98,8 +98,10 @@ jobs:
             # 配置 PHP-FPM
             sudo sed -i 's/user = apache/user = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             sudo sed -i 's/group = apache/group = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
+            sudo sed -i 's/listen = 127.0.0.1:9000/listen = \/var\/opt\/remi\/php81\/run\/php-fpm\/www.sock/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             sudo sed -i 's/listen.owner = apache/listen.owner = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             sudo sed -i 's/listen.group = apache/listen.group = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
+            sudo sed -i 's/;listen.mode = 0660/listen.mode = 0660/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             
             # 配置 PHP 错误日志
             sudo sed -i 's/;error_log = php_errors.log/error_log = \/var\/opt\/remi\/php81\/log\/php-fpm\/error.log/' /etc/opt/remi/php81/php.ini
@@ -126,12 +128,22 @@ jobs:
             sudo chown -R nginx:nginx /usr/share/nginx/html/tmp
             sudo chmod 777 /usr/share/nginx/html/tmp
             
+            # 重启前检查 PHP-FPM 配置
+            sudo php81-php-fpm -t || {
+                echo "PHP-FPM configuration test failed"
+                exit 1
+            }
+            
             # 重启所有服务
             echo "Restarting services..."
             sudo systemctl restart php81-php-fpm || {
                 echo "Failed to restart PHP-FPM"
                 exit 1
             }
+            
+            # 等待 PHP-FPM 完全启动
+            sleep 5
+            
             sudo systemctl restart nginx || {
                 echo "Failed to restart Nginx"
                 exit 1
@@ -139,6 +151,8 @@ jobs:
             
             # 验证服务状态
             echo "Checking service status..."
+            echo "PHP-FPM socket file:"
+            ls -la /var/opt/remi/php81/run/php-fpm/
             sudo systemctl status php81-php-fpm
             sudo systemctl status nginx
             
