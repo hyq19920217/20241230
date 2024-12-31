@@ -108,6 +108,20 @@
                 grid-template-columns: 1fr;
             }
         }
+        .letter-section {
+            margin-bottom: 40px;
+        }
+        .letter-heading {
+            color: #4CAF50;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .word-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
     </style>
 </head>
 <body>
@@ -129,9 +143,9 @@
 
     <script>
         // 生成字母导航
-        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        const letters = '#ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
         const nav = document.getElementById('letterNav');
-        let currentLetter = 'A';
+        let currentLetter = '';  // 默认不选中任何字母
         
         letters.forEach(letter => {
             const btn = document.createElement('button');
@@ -141,7 +155,11 @@
                 document.querySelectorAll('.letter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentLetter = letter;
-                loadVocabulary(letter);
+                // 滚动到对应区域
+                const section = document.getElementById(`section-${letter}`);
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth' });
+                }
             };
             nav.appendChild(btn);
         });
@@ -155,17 +173,17 @@
                 if (searchTerm) {
                     searchVocabulary(searchTerm);
                 } else {
-                    loadVocabulary(currentLetter);
+                    loadVocabulary();
                 }
             }, 300);
         });
 
         // 加载词汇列表
-        function loadVocabulary(letter) {
+        function loadVocabulary() {
             const list = document.getElementById('vocabularyList');
             list.innerHTML = '<div class="loading">加载中...</div>';
             
-            fetch(`get_vocabulary.php?letter=${letter}`)
+            fetch('get_vocabulary.php')
                 .then(response => {
                     if (!response.ok) {
                         return response.text().then(text => {
@@ -175,21 +193,44 @@
                     return response.json();
                 })
                 .then(data => {
+                    console.log('Received data:', data);
                     if (data.length === 0) {
                         list.innerHTML = '<div class="loading">暂无数据</div>';
                         return;
                     }
-                    list.innerHTML = data.map(item => `
-                        <div class="word-card">
-                            <div class="word-header">
-                                <div class="word">${item.word}</div>
-                                <div class="part-of-speech">${item.part_of_speech}</div>
+
+                    // 按字母分组
+                    const groups = {};
+                    data.forEach(item => {
+                        const firstChar = /^[A-Za-z]/.test(item.word) ? 
+                            item.word[0].toUpperCase() : '#';
+                        if (!groups[firstChar]) {
+                            groups[firstChar] = [];
+                        }
+                        groups[firstChar].push(item);
+                    });
+
+                    // 生成 HTML
+                    list.innerHTML = Object.entries(groups)
+                        .sort(([a], [b]) => a === '#' ? -1 : b === '#' ? 1 : a.localeCompare(b))
+                        .map(([letter, items]) => `
+                            <div id="section-${letter}" class="letter-section">
+                                <h2 class="letter-heading">${letter}</h2>
+                                <div class="word-grid">
+                                    ${items.map(item => `
+                                        <div class="word-card">
+                                            <div class="word-header">
+                                                <div class="word">${item.word}</div>
+                                                <div class="part-of-speech">${item.part_of_speech}</div>
+                                            </div>
+                                            <div class="meaning">${item.meaning}</div>
+                                            <div class="example">${item.example}</div>
+                                            <div class="example-cn">${item.example_cn}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
                             </div>
-                            <div class="meaning">${item.meaning}</div>
-                            <div class="example">${item.example}</div>
-                            <div class="example-cn">${item.example_cn}</div>
-                        </div>
-                    `).join('');
+                        `).join('');
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -203,8 +244,16 @@
             list.innerHTML = '<div class="loading">搜索中...</div>';
             
             fetch(`search_vocabulary.php?term=${encodeURIComponent(term)}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Search results:', data);
                     if (data.length === 0) {
                         list.innerHTML = '<div class="loading">未找到匹配的词汇</div>';
                         return;
@@ -223,12 +272,12 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    list.innerHTML = '<div class="loading">搜索失败</div>';
+                    list.innerHTML = `<div class="loading">搜索失败：${error.message}</div>`;
                 });
         }
 
-        // 默认加载 A 开头的词汇
-        loadVocabulary('A');
+        // 默认加载所有词汇
+        loadVocabulary();
     </script>
 </body>
 </html> 
