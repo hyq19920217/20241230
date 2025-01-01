@@ -12,6 +12,7 @@ header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
 try {
+    $db = new Database();
     error_log("Attempting to connect to database...");
     error_log("DB_HOST: " . DB_HOST);
     error_log("DB_NAME: " . DB_NAME);
@@ -32,7 +33,6 @@ try {
         }
     }
     
-    $db = new Database();
     $result = $db->addVocabulary(
         $data['word'],
         $data['partOfSpeech'],
