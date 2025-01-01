@@ -1,9 +1,10 @@
 <?php
+require_once 'config.php';
+require_once 'db.php';
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
-require_once 'db.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
@@ -11,7 +12,12 @@ header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
 try {
-    // 获取 POST 数据
+    error_log("Attempting to connect to database...");
+    error_log("DB_HOST: " . DB_HOST);
+    error_log("DB_NAME: " . DB_NAME);
+    error_log("DB_USER: " . DB_USER);
+    error_log("Connection status: " . ($db->conn ? 'connected' : 'failed'));
+    
     $data = json_decode(file_get_contents('php://input'), true);
     
     if (!$data) {
