@@ -206,21 +206,31 @@
             border-radius: 50%;
         }
         
-        .message-content {
-            display: none;
-            padding: 10px;
-            margin-top: 10px;
-            border-top: 1px solid #eee;
-        }
-        
-        .message-item.expanded .message-content {
-            display: block;
-        }
-        
         .message-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 10px;
+        }
+        
+        .message-info {
+            flex: 1;
+            text-align: left;
+        }
+        
+        .message-preview {
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+        
+        .expand-icon {
+            color: #999;
+            transition: transform 0.3s;
+        }
+        
+        .message-item.expanded .expand-icon {
+            transform: rotate(180deg);
         }
         
         .message-time {
@@ -229,7 +239,15 @@
         }
         
         .message-content {
-            margin: 10px 0;
+            display: none;
+            padding: 10px;
+            margin-top: 10px;
+            border-top: 1px solid #eee;
+            text-align: left;
+        }
+        
+        .message-item.expanded .message-content {
+            display: block;
         }
     </style>
 </head>
@@ -630,7 +648,13 @@
                     messagesList.innerHTML = messages.map(message => `
                         <div class="message-item ${message.is_read ? '' : 'unread'}" data-id="${message.id}">
                             <div class="message-header">
-                                <div class="message-time">${new Date(message.created_at).toLocaleString()}</div>
+                                <div class="message-info">
+                                    <div class="message-time">${new Date(message.created_at).toLocaleString()}</div>
+                                    <div class="message-preview">${message.content.substring(0, 50)}${message.content.length > 50 ? '...' : ''}</div>
+                                </div>
+                                <div class="message-expand">
+                                    <span class="expand-icon">▼</span>
+                                </div>
                             </div>
                             <div class="message-content">${message.content}</div>
                         </div>
@@ -640,10 +664,10 @@
                     document.querySelectorAll('.message-item').forEach(item => {
                         item.addEventListener('click', () => {
                             item.classList.toggle('expanded');
-                            if (!item.classList.contains('unread')) return;
-                            
-                            // 标记为已读
-                            markAsRead(item.dataset.id);
+                            // 如果是未读消息，点击时标记为已读
+                            if (item.classList.contains('unread')) {
+                                markAsRead(item.dataset.id);
+                            }
                         });
                     });
                 })

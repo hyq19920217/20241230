@@ -176,7 +176,9 @@
             height: 100%;
             background: rgba(0,0,0,0.5);
             z-index: 1001;
-            display: flex;
+            &.show {
+                display: flex;
+            }
             justify-content: center;
             align-items: center;
         }
@@ -185,10 +187,11 @@
             background: white;
             width: 80%;
             max-width: 500px;
-            margin: 0 auto;
+            margin: auto;
             padding: 20px;
             border-radius: 8px;
             position: relative;
+            text-align: center;
         }
         
         .close {
@@ -206,13 +209,16 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            resize: vertical;
+            resize: none;
             max-height: 300px;
             font-size: 14px;
             line-height: 1.5;
+            box-sizing: border-box;
+            margin: 10px auto;
         }
         
         #submitMessage {
+            margin: 10px auto;
             background: #4CAF50;
             color: white;
             border: none;
@@ -440,8 +446,8 @@
         const closeBtn = document.querySelector('.close');
         const submitBtn = document.getElementById('submitMessage');
         
-        messageBtn.onclick = () => messageModal.style.display = 'block';
-        closeBtn.onclick = () => messageModal.style.display = 'none';
+        messageBtn.onclick = () => messageModal.classList.add('show');
+        closeBtn.onclick = () => messageModal.classList.remove('show');
         
         submitBtn.onclick = () => {
             const content = document.getElementById('messageContent').value;
@@ -461,7 +467,7 @@
             .then(data => {
                 if (data.status === 'success') {
                     alert('留言成功');
-                    messageModal.style.display = 'none';
+                    messageModal.classList.remove('show');
                     document.getElementById('messageContent').value = '';
                 } else {
                     throw new Error('提交失败');
@@ -476,7 +482,7 @@
         // 点击模态框外部关闭
         window.onclick = (event) => {
             if (event.target === messageModal) {
-                messageModal.style.display = 'none';
+                messageModal.classList.remove('show');
             }
         };
     </script>
