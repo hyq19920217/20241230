@@ -321,45 +321,38 @@
         // 手动添加处理
         document.getElementById('addForm').onsubmit = function(e) {
             e.preventDefault();
-            const data = {
-                word: document.getElementById('word').value,
-                partOfSpeech: document.getElementById('partOfSpeech').value,
-                meaning: document.getElementById('meaning').value,
-                example: document.getElementById('example').value,
-                exampleCn: document.getElementById('exampleCn').value
-            };
-
+            
+            const word = document.getElementById('word').value;
+            const partOfSpeech = document.getElementById('partOfSpeech').value;
+            const meaning = document.getElementById('meaning').value;
+            const example = document.getElementById('example').value;
+            const exampleCn = document.getElementById('exampleCn').value;
+            
             fetch('add_vocabulary.php', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify({
+                    word: word,
+                    partOfSpeech: partOfSpeech,
+                    meaning: meaning,
+                    example: example,
+                    exampleCn: exampleCn
+                })
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
-                    });
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                const resultDiv = document.getElementById('addResult');
-                if (data.status === 'success') {
-                    resultDiv.innerHTML = '添加成功！';
-                    resultDiv.className = 'message success';
-                    document.getElementById('addForm').reset();
-                    loadVocabularyList();
-                } else {
+                if (data.status === 'error') {
                     throw new Error(data.message);
                 }
+                // 添加成功后刷新页面或显示成功消息
+                alert('添加成功');
+                window.location.reload();
             })
             .catch(error => {
                 console.error('Error:', error);
-                const resultDiv = document.getElementById('addResult');
-                resultDiv.innerHTML = '添加失败：' + error.message + '<br>详细错误：' + error;
-                resultDiv.className = 'message error';
+                document.getElementById('error').textContent = error.message;
             });
         };
 
