@@ -7,11 +7,14 @@ on:
 
 jobs:
   deploy:
+    name: Deploy to Production
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
       
-      - name: Deploy to Server
+      - name: Deploy files
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -19,13 +22,15 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           source: "*.html,*.php,config.php,db.php,nginx/**,vendor/**,composer.json,composer.lock,db/**"
           target: "/usr/share/nginx/html"
-          
-      - name: Set file permissions and configure nginx
+      
+      - name: Configure Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
+          env:
+            MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           script: |
             # 设置文件权限
             chown -R nginx:nginx /usr/share/nginx/html/
@@ -94,13 +99,23 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
+          env:
+            MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           script: |
+            # 设置环境变量
+            echo "$MYSQL_ROOT_PASSWORD" | sudo tee /etc/mysql_root_password
+            sudo chown nginx:nginx /etc/mysql_root_password
+            sudo chmod 600 /etc/mysql_root_password
+            
             # 配置 PHP-FPM
             sudo sed -i 's/user = apache/user = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             sudo sed -i 's/group = apache/group = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             sudo sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             sudo sed -i 's/listen.owner = apache/listen.owner = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
             sudo sed -i 's/listen.group = apache/listen.group = nginx/g' /etc/opt/remi/php81/php-fpm.d/www.conf
+            
+            # 配置环境变量
+            echo "env[MYSQL_ROOT_PASSWORD] = $MYSQL_ROOT_PASSWORD" | sudo tee -a /etc/opt/remi/php81/php-fpm.d/www.conf
             
             # 添加更多调试信息
             sudo sed -i 's/;catch_workers_output = .*/catch_workers_output = yes/' /etc/opt/remi/php81/php-fpm.d/www.conf
@@ -177,16 +192,24 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
+          env:
+            MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           script: |
+            # 测试数据库连接
+            if ! mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "SELECT 1"; then
+                echo "Database connection failed"
+                exit 1
+            fi
+            
             # 检查数据库是否存在
-            if ! mysql -uroot -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "USE content_db"; then
+            if ! mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "USE content_db"; then
                 echo "Creating database..."
-                mysql -uroot -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS content_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+                mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS content_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
             fi
             
             # 导入数据库结构
-            sudo mysql -uroot -p${{ secrets.MYSQL_ROOT_PASSWORD }} content_db < /usr/share/nginx/html/db/init.sql 
+            sudo mysql -uroot -p$MYSQL_ROOT_PASSWORD content_db < /usr/share/nginx/html/db/init.sql 
             
             # 检查数据库表是否创建成功
             echo "Checking database tables..."
-            mysql -uroot -p${{ secrets.MYSQL_ROOT_PASSWORD }} content_db -e "SHOW TABLES;" 
+            mysql -uroot -p$MYSQL_ROOT_PASSWORD content_db -e "SHOW TABLES;" 

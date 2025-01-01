@@ -3,7 +3,7 @@
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'content_db');
 define('DB_USER', 'root');
-define('DB_PASS', '${{ secrets.MYSQL_ROOT_PASSWORD }}');
+define('DB_PASS', file_exists('/etc/mysql_root_password') ? trim(file_get_contents('/etc/mysql_root_password')) : '');
 
 // 错误处理配置
 ini_set('display_errors', 0);
@@ -32,6 +32,10 @@ try {
     );
 } catch(PDOException $e) {
     error_log("Database connection failed: " . $e->getMessage());
+    error_log("DB_HOST: " . DB_HOST);
+    error_log("DB_NAME: " . DB_NAME);
+    error_log("DB_USER: " . DB_USER);
+    error_log("DB_PASS exists: " . (getenv('MYSQL_ROOT_PASSWORD') ? 'yes' : 'no'));
     if (DEBUG_MODE) {
         throw $e;
     } else {
