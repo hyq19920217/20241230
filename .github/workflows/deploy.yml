@@ -137,20 +137,20 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             # 测试数据库连接
-            if ! mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "SELECT 1"; then
+            if ! mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "SELECT 1"; then
                 echo "Database connection failed"
                 exit 1
             fi
             
             # 检查数据库是否存在
-            if ! mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "USE content_db"; then
+            if ! mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "USE content_db"; then
                 echo "Creating database..."
-                mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS content_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+                mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS content_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
             fi
             
             # 导入数据库结构
-            sudo mysql -uroot -p$MYSQL_ROOT_PASSWORD content_db < /usr/share/nginx/html/db/init.sql 
+            sudo mysql -uroot -p"$MYSQL_ROOT_PASSWORD" content_db < /usr/share/nginx/html/db/init.sql 
             
             # 检查数据库表是否创建成功
             echo "Checking database tables..."
-            mysql -uroot -p$MYSQL_ROOT_PASSWORD content_db -e "SHOW TABLES;" 
+            mysql -uroot -p"$MYSQL_ROOT_PASSWORD" content_db -e "SHOW TABLES;" 
