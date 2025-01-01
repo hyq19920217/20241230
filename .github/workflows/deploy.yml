@@ -28,7 +28,7 @@ jobs:
           envs: MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
           script: |
             # 确保密码文件存在并设置正确权限
-            echo "$MYSQL_ROOT_PASSWORD" | sudo tee /etc/mysql_root_password > /dev/null
+            echo '${{ secrets.MYSQL_ROOT_PASSWORD }}' | sudo tee /etc/mysql_root_password > /dev/null
             sudo chown nginx:nginx /etc/mysql_root_password
             sudo chmod 600 /etc/mysql_root_password
             
