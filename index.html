@@ -196,20 +196,18 @@
             fetch('get_vocabulary.php')
                 .then(response => {
                     if (!response.ok) {
-                        return response.text().then(text => {
-                            throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
-                        });
+                        throw new Error('网络请求失败');
                     }
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Received data:', data);
                     if (data.length === 0) {
+                        vocabularyCount.textContent = '暂无数据';
                         list.innerHTML = '<div class="loading">暂无数据</div>';
-                        countSpan.textContent = '0 个词汇';
                         return;
                     }
-
+                    vocabularyCount.textContent = data.length + ' 个词汇';
+                    
                     // 按字母分组
                     const groups = {};
                     data.forEach(item => {
@@ -220,7 +218,7 @@
                         }
                         groups[firstChar].push(item);
                     });
-
+                    
                     // 生成 HTML
                     list.innerHTML = Object.entries(groups)
                         .sort(([a], [b]) => a === '#' ? -1 : b === '#' ? 1 : a.localeCompare(b))
@@ -242,11 +240,11 @@
                                 </div>
                             </div>
                         `).join('');
-                    countSpan.textContent = data.length + ' 个词汇';
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    list.innerHTML = `<div class="loading">加载失败：${error.message}</div>`;
+                    vocabularyCount.textContent = '连接数据库失败';
+                    list.innerHTML = '<div class="loading">加载失败</div>';
+                    console.error('加载词汇失败:', error);
                 });
         }
 

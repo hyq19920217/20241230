@@ -35,7 +35,11 @@ try {
     if (DEBUG_MODE) {
         throw $e;
     } else {
-        die("数据库连接失败");
+        header('Content-Type: application/json');
+        die(json_encode([
+            'status' => 'error',
+            'message' => '数据库连接失败'
+        ], JSON_UNESCAPED_UNICODE));
     }
 }
 
