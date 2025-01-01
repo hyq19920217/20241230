@@ -365,6 +365,11 @@
             fetch('get_vocabulary.php')
                 .then(response => response.json())
                 .then(data => {
+                    console.log('Received data:', data);
+                    if (!Array.isArray(data)) {
+                        console.log('Data is not an array:', typeof data);
+                        throw new Error('Invalid data format');
+                    }
                     if (data.length === 0) {
                         tbody.innerHTML = '<tr><td colspan="6">暂无数据</td></tr>';
                         countSpan.textContent = '0 个词汇';
