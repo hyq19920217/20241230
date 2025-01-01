@@ -10,10 +10,11 @@ try {
     $stmt->execute();
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
+    error_log("Fetched data: " . json_encode($result));
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     error_log("Error fetching vocabulary: " . $e->getMessage());
-    // 当发生错误时返回空数组，这样前端代码仍然可以正常工作
+    error_log("Stack trace: " . $e->getTraceAsString());
     echo json_encode([], JSON_UNESCAPED_UNICODE);
 }
 ?> 
