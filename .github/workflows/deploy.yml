@@ -36,4 +36,8 @@ jobs:
             chown -R nginx:nginx /usr/share/nginx/html/
             chmod 755 /usr/share/nginx/html/*.html
             chmod 755 /usr/share/nginx/html/*.php
-            chmod 644 /usr/share/nginx/html/nginx/*.conf 
+            chmod 644 /usr/share/nginx/html/nginx/*.conf
+            
+            # 安装 Composer 依赖
+            cd /usr/share/nginx/html/
+            composer install --no-dev 
