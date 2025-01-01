@@ -2,19 +2,18 @@
 require_once 'config.php';
 
 class Database {
-    private $conn;
+    public $conn;
     
     public function __construct() {
         try {
             $this->conn = new PDO(
                 "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME,
                 DB_USER,
-                DB_PASS
+                DB_PASS,
+                array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
             );
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch(PDOException $e) {
-            error_log("Connection failed: " . $e->getMessage());
-            throw new Exception("数据库连接失败");
+            throw new Exception("数据库连接失败: " . $e->getMessage());
         }
     }
     
