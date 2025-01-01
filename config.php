@@ -3,7 +3,7 @@
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'content_db');
 define('DB_USER', 'root');
-define('DB_PASS', file_exists('/etc/mysql_root_password') ? trim(file_get_contents('/etc/mysql_root_password')) : '');
+define('DB_PASS', trim(file_get_contents('/etc/mysql_root_password')));
 
 // 错误处理配置
 ini_set('display_errors', 0);
