@@ -152,11 +152,76 @@
         .back-to-top.visible {
             opacity: 1;
         }
+        /* 留言按钮样式 */
+        .message-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        /* 弹窗样式 */
+        .message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1001;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 80%;
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 20px;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        #messageContent {
+            width: 100%;
+            height: 150px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        
+        #submitMessage {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div id="backToTop" class="back-to-top" title="回到顶部">↑</div>
     <div class="container">
+        <div class="message-btn" id="messageBtn">
+            <i class="fas fa-comment"></i> 留言建议
+        </div>
         <h1>产品经理英语词汇宝典 <span id="vocabularyCount" class="count-badge">加载中...</span></h1>
         
         <div class="search-box">
@@ -169,6 +234,16 @@
         
         <div class="vocabulary-list" id="vocabularyList">
             <!-- 词汇卡片将通过 JS 加载 -->
+        </div>
+        
+        <!-- 留言弹窗 -->
+        <div class="message-modal" id="messageModal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>留言建议</h2>
+                <textarea id="messageContent" placeholder="请输入您的建议..."></textarea>
+                <button id="submitMessage">提交</button>
+            </div>
         </div>
     </div>
 
@@ -325,6 +400,52 @@
         backToTop.addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
+
+        // 留言功能
+        const messageBtn = document.getElementById('messageBtn');
+        const messageModal = document.getElementById('messageModal');
+        const closeBtn = document.querySelector('.close');
+        const submitBtn = document.getElementById('submitMessage');
+        
+        messageBtn.onclick = () => messageModal.style.display = 'block';
+        closeBtn.onclick = () => messageModal.style.display = 'none';
+        
+        submitBtn.onclick = () => {
+            const content = document.getElementById('messageContent').value;
+            if (!content.trim()) {
+                alert('请输入留言内容');
+                return;
+            }
+            
+            fetch('https://productowner.top/add_message.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `content=${encodeURIComponent(content)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('留言成功');
+                    messageModal.style.display = 'none';
+                    document.getElementById('messageContent').value = '';
+                } else {
+                    throw new Error('提交失败');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('提交失败，请稍后重试');
+            });
+        };
+        
+        // 点击模态框外部关闭
+        window.onclick = (event) => {
+            if (event.target === messageModal) {
+                messageModal.style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html> 

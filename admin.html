@@ -163,12 +163,62 @@
         .back-to-top.visible {
             opacity: 1;
         }
+        
+        /* 站内信样式 */
+        .unread-badge {
+            background: #dc3545;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            display: none;
+        }
+        
+        .messages-list {
+            margin-top: 20px;
+        }
+        
+        .message-item {
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            background: #fff;
+        }
+        
+        .message-item.unread {
+            background: #f8f9fa;
+            border-left: 3px solid #4CAF50;
+        }
+        
+        .message-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .message-content {
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>产品经理词汇管理</h1>
         
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="vocabulary">词汇管理</button>
+            <button class="tab-btn" data-tab="import">批量导入</button>
+            <button class="tab-btn" data-tab="messages">站内信 <span id="unreadCount" class="unread-badge"></span></button>
+        </div>
+
+        <!-- 添加站内信面板 -->
+        <div id="messagesPanel" class="tab-panel" style="display: none;">
+            <div class="messages-list">
+                <h2>站内信</h2>
+                <div id="messagesList"></div>
+            </div>
+        </div>
+
         <!-- Excel 导入部分 -->
         <div class="section">
             <h2>批量导入</h2>
@@ -525,6 +575,81 @@
 
         // 初始加载词汇列表
         loadVocabularyList();
+
+        // 加载站内信
+        function loadMessages() {
+            const messagesList = document.getElementById('messagesList');
+            const unreadBadge = document.getElementById('unreadCount');
+            
+            fetch('https://productowner.top/get_messages.php')
+                .then(response => response.json())
+                .then(messages => {
+                    const unreadCount = messages.filter(m => !m.is_read).length;
+                    
+                    if (unreadCount > 0) {
+                        unreadBadge.style.display = 'inline';
+                        unreadBadge.textContent = unreadCount;
+                    } else {
+                        unreadBadge.style.display = 'none';
+                    }
+                    
+                    messagesList.innerHTML = messages.map(message => `
+                        <div class="message-item ${message.is_read ? '' : 'unread'}" data-id="${message.id}">
+                            <div class="message-time">${new Date(message.created_at).toLocaleString()}</div>
+                            <div class="message-content">${message.content}</div>
+                        </div>
+                    `).join('');
+                    
+                    // 添加点击事件，标记已读
+                    document.querySelectorAll('.message-item.unread').forEach(item => {
+                        item.addEventListener('click', () => markAsRead(item.dataset.id));
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    messagesList.innerHTML = '<div class="error">加载消息失败</div>';
+                });
+        }
+        
+        // 标记消息为已读
+        function markAsRead(id) {
+            fetch('https://productowner.top/mark_message_read.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${id}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    loadMessages();  // 重新加载消息列表
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        // 添加标签切换功能
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                document.querySelectorAll('.tab-panel').forEach(panel => {
+                    panel.style.display = 'none';
+                });
+                
+                const panelId = btn.dataset.tab + 'Panel';
+                document.getElementById(panelId).style.display = 'block';
+                
+                if (btn.dataset.tab === 'messages') {
+                    loadMessages();
+                }
+            });
+        });
+        
+        // 初始加载消息
+        loadMessages();
     </script>
 </body>
 </html> 
