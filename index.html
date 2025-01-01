@@ -214,7 +214,7 @@
             const countSpan = document.getElementById('vocabularyCount');
             list.innerHTML = '<div class="loading">加载中...</div>';
             
-            fetch('get_vocabulary.php')
+            fetch('https://productowner.top/get_vocabulary.php')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('网络请求失败');
@@ -274,7 +274,7 @@
             const list = document.getElementById('vocabularyList');
             list.innerHTML = '<div class="loading">搜索中...</div>';
             
-            fetch(`search_vocabulary.php?term=${encodeURIComponent(term)}`)
+            fetch(`https://productowner.top/search_vocabulary.php?term=${encodeURIComponent(term)}`)
                 .then(response => {
                     if (!response.ok) {
                         return response.text().then(text => {

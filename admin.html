@@ -288,7 +288,7 @@
             console.log('2. 准备发送请求');
             console.log('FormData 内容:', Array.from(formData.entries()));
 
-            fetch('import_vocabulary.php', {
+            fetch('https://productowner.top/import_vocabulary.php', {
                 method: 'POST',
                 body: formData
             })
@@ -372,7 +372,7 @@
             const example = document.getElementById('example').value;
             const exampleCn = document.getElementById('exampleCn').value;
             
-            fetch('add_vocabulary.php', {
+            fetch('https://productowner.top/add_vocabulary.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -406,7 +406,7 @@
             const countSpan = document.getElementById('vocabularyCount');
             tbody.innerHTML = '<tr><td colspan="6">加载中...</td></tr>';
             
-            fetch('get_vocabulary.php')
+            fetch('https://productowner.top/get_vocabulary.php')
                 .then(response => response.json())
                 .then(data => {
                     console.log('Received data:', data);
@@ -452,7 +452,7 @@
                 return;
             }
 
-            fetch(`delete_vocabulary.php?id=${id}`, {
+            fetch(`https://productowner.top/delete_vocabulary.php?id=${id}`, {
                 method: 'DELETE'
             })
             .then(response => response.json())
