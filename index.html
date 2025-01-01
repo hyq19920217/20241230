@@ -131,9 +131,30 @@
             margin-left: 10px;
             vertical-align: middle;
         }
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .back-to-top.visible {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
+    <div id="backToTop" class="back-to-top" title="回到顶部">↑</div>
     <div class="container">
         <h1>产品经理英语词汇宝典 <span id="vocabularyCount" class="count-badge">加载中...</span></h1>
         
@@ -288,6 +309,21 @@
 
         // 默认加载所有词汇
         loadVocabulary();
+
+        // 回到顶部功能
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
     </script>
 </body>
 </html> 
