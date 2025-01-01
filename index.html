@@ -176,13 +176,16 @@
             height: 100%;
             background: rgba(0,0,0,0.5);
             z-index: 1001;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         .modal-content {
             background: white;
             width: 80%;
             max-width: 500px;
-            margin: 100px auto;
+            margin: 0 auto;
             padding: 20px;
             border-radius: 8px;
             position: relative;
@@ -204,6 +207,9 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             resize: vertical;
+            max-height: 300px;
+            font-size: 14px;
+            line-height: 1.5;
         }
         
         #submitMessage {
@@ -214,15 +220,38 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
+        .message-tip {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-top: -15px;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            font-weight: normal;
+        }
+        
+        .message-tip {
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
     <div id="backToTop" class="back-to-top" title="回到顶部">↑</div>
     <div class="container">
         <div class="message-btn" id="messageBtn">
-            <i class="fas fa-comment"></i> 留言建议
+            <i class="fas fa-comment"></i> 留言建议 / Feedback
         </div>
-        <h1>产品经理英语词汇宝典 <span id="vocabularyCount" class="count-badge">加载中...</span></h1>
+        <h1>
+            产品经理英语词汇宝典 
+            <span id="vocabularyCount" class="count-badge">加载中...</span>
+        </h1>
+        <h2 class="subtitle">Product Manager's English Vocabulary Dictionary</h2>
         
         <div class="search-box">
             <input type="text" class="search-input" id="searchInput" placeholder="搜索单词...">
@@ -240,9 +269,13 @@
         <div class="message-modal" id="messageModal">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h2>留言建议</h2>
-                <textarea id="messageContent" placeholder="请输入您的建议..."></textarea>
-                <button id="submitMessage">提交</button>
+                <h2>留言建议 / Feedback</h2>
+                <p class="message-tip">
+                    请留下您的联系方式（邮箱/微信），方便我及时回复您的建议。<br>
+                    Please leave your contact information (email/WeChat) so I can reply to your feedback.
+                </p>
+                <textarea id="messageContent" placeholder="请输入您的建议...(500字以内) / Please enter your feedback (within 500 characters)" maxlength="500"></textarea>
+                <button id="submitMessage">提交 / Submit</button>
             </div>
         </div>
     </div>

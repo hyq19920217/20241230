@@ -184,11 +184,43 @@
             margin-bottom: 10px;
             border-radius: 4px;
             background: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
         }
         
         .message-item.unread {
             background: #f8f9fa;
             border-left: 3px solid #4CAF50;
+            padding-left: 30px;
+        }
+        
+        .message-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 20px;
+            width: 8px;
+            height: 8px;
+            background: #dc3545;
+            border-radius: 50%;
+        }
+        
+        .message-content {
+            display: none;
+            padding: 10px;
+            margin-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        .message-item.expanded .message-content {
+            display: block;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .message-time {
@@ -207,85 +239,87 @@
         
         <div class="nav-tabs">
             <button class="tab-btn active" data-tab="vocabulary">词汇管理</button>
-            <button class="tab-btn" data-tab="import">批量导入</button>
             <button class="tab-btn" data-tab="messages">站内信 <span id="unreadCount" class="unread-badge"></span></button>
         </div>
 
-        <!-- 添加站内信面板 -->
+        <!-- 词汇管理面板 -->
+        <div id="vocabularyPanel" class="tab-panel">
+            <!-- 批量导入部分 -->
+            <div class="section">
+                <h2>批量导入</h2>
+                <div class="import-section">
+                    <a href="download_template.php" class="template-link">下载导入模板</a>
+                    <form id="importForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>选择 Excel 文件：</label>
+                            <input type="file" id="excelFile" accept=".xlsx,.xls" required>
+                        </div>
+                        <button type="submit">导入</button>
+                    </form>
+                    <div id="importResult" class="message"></div>
+                </div>
+            </div>
+
+            <!-- 手动添加部分 -->
+            <div class="section">
+                <h2>手动添加</h2>
+                <form id="addForm">
+                    <div class="form-group">
+                        <label>英语单词：</label>
+                        <input type="text" id="word" required>
+                    </div>
+                    <div class="form-group">
+                        <label>词性：</label>
+                        <input type="text" id="partOfSpeech" required placeholder="例如：n.、adj.、v.">
+                    </div>
+                    <div class="form-group">
+                        <label>中文含义：</label>
+                        <input type="text" id="meaning" required>
+                    </div>
+                    <div class="form-group">
+                        <label>英语例句：</label>
+                        <textarea id="example" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>例句翻译：</label>
+                        <textarea id="exampleCn" required></textarea>
+                    </div>
+                    <button type="submit">添加词汇</button>
+                </form>
+                <div id="addResult" class="message"></div>
+            </div>
+
+            <!-- 词汇列表部分 -->
+            <div class="section">
+                <h2>词汇列表 <span id="vocabularyCount" class="count-badge">加载中...</span></h2>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索词汇..." class="search-input">
+                </div>
+                <div class="vocabulary-list">
+                    <table class="vocabulary-table">
+                        <thead>
+                            <tr>
+                                <th>单词</th>
+                                <th>词性</th>
+                                <th>中文含义</th>
+                                <th>英语例句</th>
+                                <th>例句翻译</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vocabularyTableBody">
+                            <!-- 词汇列表将通过 JS 加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 站内信面板 -->
         <div id="messagesPanel" class="tab-panel" style="display: none;">
             <div class="messages-list">
                 <h2>站内信</h2>
                 <div id="messagesList"></div>
-            </div>
-        </div>
-
-        <!-- Excel 导入部分 -->
-        <div class="section">
-            <h2>批量导入</h2>
-            <div class="import-section">
-                <a href="download_template.php" class="template-link">下载导入模板</a>
-                <form id="importForm" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label>选择 Excel 文件：</label>
-                        <input type="file" id="excelFile" accept=".xlsx,.xls" required>
-                    </div>
-                    <button type="submit">导入</button>
-                </form>
-                <div id="importResult" class="message"></div>
-            </div>
-        </div>
-
-        <!-- 手动添加部分 -->
-        <div class="section">
-            <h2>手动添加</h2>
-            <form id="addForm">
-                <div class="form-group">
-                    <label>英语单词：</label>
-                    <input type="text" id="word" required>
-                </div>
-                <div class="form-group">
-                    <label>词性：</label>
-                    <input type="text" id="partOfSpeech" required placeholder="例如：n.、adj.、v.">
-                </div>
-                <div class="form-group">
-                    <label>中文含义：</label>
-                    <input type="text" id="meaning" required>
-                </div>
-                <div class="form-group">
-                    <label>英语例句：</label>
-                    <textarea id="example" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>例句翻译：</label>
-                    <textarea id="exampleCn" required></textarea>
-                </div>
-                <button type="submit">添加词汇</button>
-            </form>
-            <div id="addResult" class="message"></div>
-        </div>
-
-        <!-- 词汇列表部分 -->
-        <div class="section">
-            <h2>词汇列表 <span id="vocabularyCount" class="count-badge">加载中...</span></h2>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="搜索词汇..." class="search-input">
-            </div>
-            <div class="vocabulary-list">
-                <table class="vocabulary-table">
-                    <thead>
-                        <tr>
-                            <th>单词</th>
-                            <th>词性</th>
-                            <th>中文含义</th>
-                            <th>英语例句</th>
-                            <th>例句翻译</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="vocabularyTableBody">
-                        <!-- 词汇列表将通过 JS 加载 -->
-                    </tbody>
-                </table>
             </div>
         </div>
 
@@ -595,14 +629,22 @@
                     
                     messagesList.innerHTML = messages.map(message => `
                         <div class="message-item ${message.is_read ? '' : 'unread'}" data-id="${message.id}">
-                            <div class="message-time">${new Date(message.created_at).toLocaleString()}</div>
+                            <div class="message-header">
+                                <div class="message-time">${new Date(message.created_at).toLocaleString()}</div>
+                            </div>
                             <div class="message-content">${message.content}</div>
                         </div>
                     `).join('');
                     
-                    // 添加点击事件，标记已读
-                    document.querySelectorAll('.message-item.unread').forEach(item => {
-                        item.addEventListener('click', () => markAsRead(item.dataset.id));
+                    // 添加点击展开/收起事件
+                    document.querySelectorAll('.message-item').forEach(item => {
+                        item.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                            if (!item.classList.contains('unread')) return;
+                            
+                            // 标记为已读
+                            markAsRead(item.dataset.id);
+                        });
                     });
                 })
                 .catch(error => {
