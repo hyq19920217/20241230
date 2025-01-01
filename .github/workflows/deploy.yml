@@ -25,7 +25,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          envs: MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+          envs: MYSQL_ROOT_PASSWORD="${{ secrets.MYSQL_ROOT_PASSWORD }}"
           script: |
             # 确保密码文件存在并设置正确权限
             echo "$MYSQL_ROOT_PASSWORD" | sudo tee /etc/mysql_root_password > /dev/null
