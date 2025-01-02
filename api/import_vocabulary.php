@@ -3,8 +3,8 @@
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
-require_once 'config.php';
-require_once 'db.php';
+require_once '../config/config.php';
+require_once '../config/db.php';
 require 'vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
