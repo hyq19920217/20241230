@@ -16,7 +16,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: "*.html,*.php,config.php,db.php,nginx/**,vendor/**,composer.json,composer.lock,db/**"
+          source: "public/**,*.php,config.php,db.php,nginx/**,vendor/**,composer.json,composer.lock,db/**"
           target: "/usr/share/nginx/html"
 
       - name: Configure Server
