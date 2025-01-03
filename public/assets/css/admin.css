@@ -266,3 +266,60 @@ button:hover {
 .message-item.expanded .message-content {
     display: block;
 }
+
+/* 文章管理样式 */
+.articles-list {
+    margin-top: 20px;
+}
+
+.article-item {
+    padding: 15px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.article-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+.article-info {
+    flex: 1;
+}
+
+.article-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.article-time {
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.article-preview {
+    color: #666;
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+.image-preview {
+    margin-top: 10px;
+    max-width: 300px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.image-preview img {
+    width: 100%;
+    height: auto;
+}
