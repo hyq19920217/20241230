@@ -1,6 +1,2 @@
 steps:
-  - uses: actions/checkout@v2
-  - name: Clear cache
-    run: |
-      rm -rf /var/cache/nginx/*
-      service nginx reload 
+  - uses: actions/checkout@v2 
