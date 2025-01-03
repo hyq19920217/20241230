@@ -389,7 +389,7 @@ button:hover {
     background: #2E7D32;
 }
 
-.词汇管理, .站内信, .文章管理 {
+.测试1, .测试2, .文章管理 {
     background-color: #4CAF50;
     color: white;
     padding: 8px 15px;
@@ -400,7 +400,7 @@ button:hover {
     font-size: 16px;
 }
 
-.词汇管理:hover, .站内信:hover, .文章管理:hover {
+.测试1:hover, .测试2:hover, .文章管理:hover {
     background-color: #45a049;
 }
 
