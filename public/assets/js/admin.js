@@ -363,11 +363,108 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         const panelId = btn.dataset.tab + 'Panel';
         document.getElementById(panelId).style.display = 'block';
         
+        // 根据不同的标签加载不同的内容
         if (btn.dataset.tab === 'messages') {
             loadMessages();
+        } else if (btn.dataset.tab === 'vocabulary') {
+            loadVocabularyList();
+        } else if (btn.dataset.tab === 'articles') {
+            loadArticles();
         }
     });
 });
 
-// 初始加载消息
-loadMessages();
+// 初始加载
+const activeTab = document.querySelector('.tab-btn.active');
+if (activeTab) {
+    if (activeTab.dataset.tab === 'messages') {
+        loadMessages();
+    } else if (activeTab.dataset.tab === 'vocabulary') {
+        loadVocabularyList();
+    } else if (activeTab.dataset.tab === 'articles') {
+        loadArticles();
+    }
+}
+
+// 文章图片预览
+document.getElementById('articleImage').addEventListener('change', function(e) {
+    const preview = document.getElementById('imagePreview');
+    const file = e.target.files[0];
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="预览图">`;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = '';
+    }
+});
+
+// 提交文章
+document.getElementById('articleForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('title', document.getElementById('articleTitle').value);
+    formData.append('content', document.getElementById('articleContent').value);
+    formData.append('image', document.getElementById('articleImage').files[0]);
+
+    try {
+        const response = await fetch('/api/add_article.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            alert('文章发布成功');
+            document.getElementById('articleForm').reset();
+            document.getElementById('imagePreview').innerHTML = '';
+            loadArticles();
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        alert('发布失败：' + error.message);
+    }
+});
+
+// 加载文章列表
+async function loadArticles() {
+    const articlesList = document.getElementById('articlesList');
+    
+    try {
+        const response = await fetch('/api/get_articles.php');
+        const articles = await response.json();
+        
+        articlesList.innerHTML = articles.map(article => `
+            <div class="article-item">
+                <div class="article-header">
+                    <div class="article-info">
+                        <div class="article-title">${article.title}</div>
+                        <div class="article-time">
+                            发布时间：${new Date(article.created_at).toLocaleString()}
+                        </div>
+                    </div>
+                </div>
+                <div class="article-preview">
+                    ${article.content.substring(0, 100)}...
+                </div>
+                ${article.image_path ? `
+                    <div class="image-preview">
+                        <img src="/${article.image_path}" alt="${article.title}">
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error:', error);
+        articlesList.innerHTML = '<div class="error">加载文章失败</div>';
+    }
+}
+
+// 在切换到文章面板时加载文章列表
+document.querySelector('[data-tab="articles"]').addEventListener('click', loadArticles);
