@@ -105,6 +105,7 @@ button:hover {
 .action-buttons {
     display: flex;
     gap: 10px;
+    margin-bottom: 20px;
 }
 
 .edit-btn {
@@ -325,34 +326,29 @@ button:hover {
 }
 
 /* 导航标签样式 */
-.nav-tabs {
+.action-buttons {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
 }
 
-.tab-btn {
+.action-btn {
     padding: 8px 15px;
     border: none;
-    background: none;
-    color: #666;
+    background: #4CAF50;
+    color: white;
     cursor: pointer;
-    font-size: 16px;
-    position: relative;
     border-radius: 4px;
-    transition: all 0.3s;
+    font-size: 16px;
+    transition: background-color 0.3s;
 }
 
-.tab-btn:hover {
-    background: #f0f0f0;
+.action-btn:hover {
+    background: #45a049;
 }
 
-.tab-btn.active {
-    color: #4CAF50;
-    font-weight: bold;
-    background: #e8f5e9;
+.action-btn.active {
+    background: #2E7D32;
 }
 
 .tab-panel {
@@ -361,4 +357,30 @@ button:hover {
 
 .tab-panel.active {
     display: block;
+}
+
+/* 顶部导航样式 */
+.top-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.nav-btn {
+    padding: 8px 15px;
+    border: none;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.nav-btn:hover {
+    background: #45a049;
+}
+
+.nav-btn.active {
+    background: #2E7D32;
 }
