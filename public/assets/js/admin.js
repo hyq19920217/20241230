@@ -468,3 +468,26 @@ async function loadArticles() {
 
 // 在切换到文章面板时加载文章列表
 document.querySelector('[data-tab="articles"]').addEventListener('click', loadArticles);
+
+// 面板切换功能
+function showPanel(panelName) {
+    // 隐藏所有面板
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.style.display = 'none';
+    });
+
+    // 显示选中的面板
+    const selectedPanel = document.getElementById(panelName + 'Panel');
+    if (selectedPanel) {
+        selectedPanel.style.display = 'block';
+    }
+
+    // 加载对应的内容
+    if (panelName === 'messages') {
+        loadMessages();
+    } else if (panelName === 'vocabulary') {
+        loadVocabularyList();
+    } else if (panelName === 'articles') {
+        loadArticles();
+    }
+}
