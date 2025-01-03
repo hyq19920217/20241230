@@ -333,18 +333,22 @@ button:hover {
 }
 
 .action-btn {
+    background-color: #4CAF50;
+    color: white;
     padding: 8px 15px;
     border: none;
-    background: #4CAF50;
-    color: white;
-    cursor: pointer;
     border-radius: 4px;
+    margin-right: 10px;
+    cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s;
 }
 
 .action-btn:hover {
-    background: #45a049;
+    background-color: #45a049;
+}
+
+.action-btn:last-child {
+    margin-right: 0;
 }
 
 .action-btn.active {
