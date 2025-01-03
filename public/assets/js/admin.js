@@ -314,12 +314,13 @@ function loadMessages() {
             `).join('');
             
             // 添加点击展开/收起事件
-            document.querySelectorAll('.message-item').forEach(item => {
-                item.addEventListener('click', () => {
+            document.querySelectorAll('.message-item').forEach(async item => {
+                item.addEventListener('click', async () => {
                     item.classList.toggle('expanded');
                     // 如果是未读消息，点击时标记为已读
                     if (item.classList.contains('unread')) {
-                        markAsRead(item.dataset.id);
+                        await markAsRead(item.dataset.id);
+                        item.classList.remove('unread');
                     }
                 });
             });
@@ -331,21 +332,22 @@ function loadMessages() {
 }
 
 // 标记消息为已读
-function markAsRead(id) {
-    fetch('/api/mark_message_read.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `id=${id}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            loadMessages();  // 重新加载消息列表
+async function markAsRead(id) {
+    try {
+        const response = await fetch('/api/mark_message_read.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `id=${id}`
+        });
+        const data = await response.json();
+        if (data.status !== 'success') {
+            throw new Error('Failed to mark as read');
         }
-    })
-    .catch(error => console.error('Error:', error));
+    } catch (error) {
+        console.error('Error:', error);
+    }
 }
 
 // 添加标签切换功能
