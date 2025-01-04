@@ -1,4 +1,5 @@
 <?php
+// Trigger deploy - add article management
 require_once 'config.php';
 
 class Database {
