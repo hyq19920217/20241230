@@ -145,5 +145,23 @@ class Database {
             throw new Exception("删除词汇失败");
         }
     }
+
+    public function getArticles() {
+        $stmt = $this->conn->query("
+            SELECT id, title, content, image_path, created_at, updated_at 
+            FROM articles 
+            ORDER BY created_at DESC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function addArticle($title, $content, $imagePath = null) {
+        $stmt = $this->conn->prepare("
+            INSERT INTO articles (title, content, image_path, created_at, updated_at) 
+            VALUES (?, ?, ?, NOW(), NOW())
+        ");
+        $stmt->execute([$title, $content, $imagePath]);
+        return $this->conn->lastInsertId();
+    }
 }
 ?> 
