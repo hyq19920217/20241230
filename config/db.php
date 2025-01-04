@@ -8,10 +8,13 @@ class Database {
     public function __construct() {
         try {
             $this->conn = new PDO(
-                "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME,
+                "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
                 DB_USER,
                 DB_PASS,
-                array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
+                array(
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+                )
             );
         } catch(PDOException $e) {
             throw new Exception("数据库连接失败: " . $e->getMessage());
