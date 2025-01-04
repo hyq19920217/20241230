@@ -3,6 +3,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
+header('Content-Type: application/json; charset=utf8mb4');
+
 // 设置错误处理函数
 function exception_handler($e) {
     header('Content-Type: application/json');
