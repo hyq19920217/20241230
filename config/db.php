@@ -87,12 +87,12 @@ class Database {
     public function addVocabulary($word, $partOfSpeech, $meaning, $example, $exampleCn) {
         try {
             // 标准化单词格式（去除空格和符号，转小写）
-            $normalizedWord = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $word));
+            $normalizedWord = strtolower(trim($word));
             
             // 检查是否已存在
             $stmt = $this->conn->prepare(
                 "SELECT id FROM pm_vocabulary 
-                WHERE LOWER(REPLACE(word, ' ', '')) = LOWER(REPLACE(?, ' ', ''))"
+                WHERE LOWER(TRIM(word)) = ?"
             );
             $stmt->execute([$normalizedWord]);
             $existing = $stmt->fetch(PDO::FETCH_ASSOC);
