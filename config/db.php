@@ -86,13 +86,17 @@ class Database {
     // 添加新词汇
     public function addVocabulary($word, $partOfSpeech, $meaning, $example, $exampleCn) {
         try {
-            // 标准化单词格式（去除空格和符号，转小写）
-            $normalizedWord = strtolower(trim($word));
+            // 标准化单词格式（统一大小写和连字符）
+            $normalizedWord = str_replace(
+                ['-', ' '], 
+                '', 
+                strtolower(trim($word))
+            );
             
             // 检查是否已存在
             $stmt = $this->conn->prepare(
                 "SELECT id FROM pm_vocabulary 
-                WHERE LOWER(TRIM(word)) = ?"
+                WHERE REPLACE(REPLACE(LOWER(TRIM(word)), '-', ''), ' ', '') = ?"
             );
             $stmt->execute([$normalizedWord]);
             $existing = $stmt->fetch(PDO::FETCH_ASSOC);
