@@ -1,5 +1,5 @@
 <?php
-// Trigger deploy - add article management
+// Trigger deploy - fix article API deployment
 require_once 'config.php';
 
 class Database {

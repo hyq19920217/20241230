@@ -1,5 +1,5 @@
 <?php
-// Trigger deploy - add article management
+// Trigger deploy - fix article API deployment
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 require_once "../config/db.php";
