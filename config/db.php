@@ -59,7 +59,12 @@ class Database {
         try {
             $stmt = $this->conn->prepare("SELECT * FROM pm_vocabulary ORDER BY word");
             $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $vocabulary = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return array_map(function($item) {
+                return array_map(function($value) {
+                    return mb_convert_encoding($value, 'UTF-8', 'auto');
+                }, $item);
+            }, $vocabulary);
         } catch(PDOException $e) {
             error_log("Query failed: " . $e->getMessage());
             throw new Exception("获取词汇列表失败");

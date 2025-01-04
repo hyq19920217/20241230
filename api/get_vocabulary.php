@@ -36,8 +36,8 @@ try {
     }
     
     $vocabulary = $db->getAllVocabulary();
-    header('Content-Type: application/json');
-    echo json_encode($vocabulary);
+    header('Content-Type: application/json; charset=utf8mb4');
+    echo json_encode($vocabulary, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (Exception $e) {
     throw $e;
 }
