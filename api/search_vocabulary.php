@@ -1,5 +1,7 @@
 <?php
-require_once '../config/db.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+require_once "../config/db.php";
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
