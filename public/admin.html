@@ -70,11 +70,14 @@
                     <input type="text" id="searchInput" placeholder="搜索词汇..." class="search-input">
                 </div>
                 <div class="vocabulary-list">
-                    <div class="batch-actions">
+                    <button id="startBatchDelete" class="action-btn">批量删除</button>
+                    <div class="batch-actions" style="display: none;">
                         <label>
                             <input type="checkbox" id="selectAll"> 全选
                         </label>
-                        <button id="batchDelete" class="danger-btn" disabled>批量删除</button>
+                        <span id="selectedCount"></span>
+                        <button id="confirmBatchDelete" class="danger-btn">删除</button>
+                        <button id="cancelBatchDelete" class="normal-btn">取消</button>
                     </div>
                     <table class="vocabulary-table">
                         <thead>

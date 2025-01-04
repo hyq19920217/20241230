@@ -505,9 +505,8 @@ document.getElementById('selectAll').addEventListener('change', function(e) {
 // 更新批量删除按钮状态
 function updateBatchDeleteButton() {
     const selectedCount = document.querySelectorAll('.vocab-select:checked').length;
-    const batchDeleteBtn = document.getElementById('batchDelete');
-    batchDeleteBtn.disabled = selectedCount === 0;
-    batchDeleteBtn.textContent = `批量删除 (${selectedCount})`;
+    document.getElementById('selectedCount').textContent = 
+        selectedCount > 0 ? `已选择 ${selectedCount} 项` : '';
 }
 
 // 监听单个复选框的变化
@@ -517,8 +516,41 @@ document.addEventListener('change', function(e) {
     }
 });
 
+// 开始批量删除模式
+document.getElementById('startBatchDelete').addEventListener('click', function() {
+    document.querySelector('.batch-actions').style.display = 'block';
+    document.getElementById('startBatchDelete').style.display = 'none';
+    // 显示所有复选框
+    document.querySelectorAll('.vocab-select').forEach(checkbox => {
+        checkbox.style.display = 'inline-block';
+    });
+});
+
+// 取消批量删除模式
+document.getElementById('cancelBatchDelete').addEventListener('click', function() {
+    exitBatchDeleteMode();
+});
+
+function exitBatchDeleteMode() {
+    document.querySelector('.batch-actions').style.display = 'none';
+    document.getElementById('startBatchDelete').style.display = 'block';
+    // 隐藏所有复选框并取消选中
+    document.querySelectorAll('.vocab-select').forEach(checkbox => {
+        checkbox.style.display = 'none';
+        checkbox.checked = false;
+    });
+    document.getElementById('selectAll').checked = false;
+}
+
+// 更新批量删除按钮状态
+function updateBatchDeleteButton() {
+    const selectedCount = document.querySelectorAll('.vocab-select:checked').length;
+    document.getElementById('selectedCount').textContent = 
+        selectedCount > 0 ? `已选择 ${selectedCount} 项` : '';
+}
+
 // 批量删除功能
-document.getElementById('batchDelete').addEventListener('click', function() {
+document.getElementById('confirmBatchDelete').addEventListener('click', function() {
     const selectedIds = Array.from(document.querySelectorAll('.vocab-select:checked'))
         .map(checkbox => checkbox.dataset.id);
     

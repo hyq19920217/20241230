@@ -418,3 +418,39 @@ button:hover {
 .测试按钮:hover {
     background-color: #45a049;
 }
+
+/* 批量删除相关样式 */
+.vocab-select {
+    display: none;  /* 默认隐藏复选框 */
+}
+
+.batch-actions {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 4px;
+}
+
+#selectedCount {
+    margin: 0 10px;
+    color: #666;
+}
+
+.action-btn {
+    padding: 6px 12px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.normal-btn {
+    padding: 6px 12px;
+    background: #999;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
