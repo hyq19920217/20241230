@@ -1,5 +1,5 @@
 <?php
-// Trigger deploy - rollback to working version
+// Trigger deploy - update database config
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 require_once "../config/db.php";
