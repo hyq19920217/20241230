@@ -10,13 +10,125 @@
     <div class="container">
         <h1>产品经理词汇管理</h1>
         
-        <div>
-            <button class="测试1">测试1</button>
-            <button class="测试2">测试2</button>
-            <button class="文章管理">文章管理</button>
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="vocabulary">词汇管理</button>
+            <button class="tab-btn" data-tab="messages">站内信 <span id="unreadCount" class="unread-badge"></span></button>
+            <button class="tab-btn" data-tab="articles">文章管理</button>
         </div>
 
-        <!-- ... 其他内容 ... -->
+        <!-- 词汇管理面板 -->
+        <div id="vocabularyPanel" class="tab-panel active">
+            <!-- 批量导入部分 -->
+            <div class="section">
+                <h2>批量导入</h2>
+                <div class="import-section">
+                    <a href="../api/download_template.php" class="template-link">下载导入模板</a>
+                    <form id="importForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>选择 Excel 文件：</label>
+                            <input type="file" id="excelFile" accept=".xlsx,.xls" required>
+                        </div>
+                        <button type="submit">导入</button>
+                    </form>
+                    <div id="importResult" class="message"></div>
+                </div>
+            </div>
+
+            <!-- 手动添加部分 -->
+            <div class="section">
+                <h2>手动添加</h2>
+                <form id="addForm">
+                    <div class="form-group">
+                        <label>英语单词：</label>
+                        <input type="text" id="word" required>
+                    </div>
+                    <div class="form-group">
+                        <label>词性：</label>
+                        <input type="text" id="partOfSpeech" required placeholder="例如：n.、adj.、v.">
+                    </div>
+                    <div class="form-group">
+                        <label>中文含义：</label>
+                        <input type="text" id="meaning" required>
+                    </div>
+                    <div class="form-group">
+                        <label>英语例句：</label>
+                        <textarea id="example" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>例句翻译：</label>
+                        <textarea id="exampleCn" required></textarea>
+                    </div>
+                    <button type="submit">添加词汇</button>
+                </form>
+                <div id="addResult" class="message"></div>
+            </div>
+
+            <!-- 词汇列表部分 -->
+            <div class="section">
+                <h2>词汇列表 <span id="vocabularyCount" class="count-badge">加载中...</span></h2>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索词汇..." class="search-input">
+                </div>
+                <div class="vocabulary-list">
+                    <table class="vocabulary-table">
+                        <thead>
+                            <tr>
+                                <th>单词</th>
+                                <th>词性</th>
+                                <th>中文含义</th>
+                                <th>英语例句</th>
+                                <th>例句翻译</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vocabularyTableBody">
+                            <!-- 词汇列表将通过 JS 加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 站内信面板 -->
+        <div id="messagesPanel" class="tab-panel">
+            <div class="messages-list">
+                <h2>站内信</h2>
+                <div id="messagesList"></div>
+            </div>
+        </div>
+
+        <!-- 文章管理面板 -->
+        <div id="articlesPanel" class="tab-panel">
+            <div class="section">
+                <h2>发布文章</h2>
+                <form id="articleForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>标题：</label>
+                        <input type="text" id="articleTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>封面图片：</label>
+                        <input type="file" id="articleImage" accept="image/*" required>
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>内容：</label>
+                        <textarea id="articleContent" required></textarea>
+                    </div>
+                    <button type="submit">发布文章</button>
+                </form>
+                <div id="articleResult" class="message"></div>
+            </div>
+
+            <div class="section">
+                <h2>文章列表</h2>
+                <div class="articles-list" id="articlesList">
+                    <!-- 文章列表将通过 JS 加载 -->
+                </div>
+            </div>
+        </div>
+
+        <div id="backToTop" class="back-to-top" title="回到顶部">↑</div>
     </div>
     <script src="../assets/js/admin.js"></script>
 </body>
