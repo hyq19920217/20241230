@@ -1,11 +1,15 @@
 <?php
 // 确保不显示 HTML 错误页面
-ini_set('display_errors', 0);
+ini_set('display_errors', 1);
 error_reporting(E_ALL);
+
+// 设置错误日志路径
+ini_set('log_errors', 1);
+ini_set('error_log', '/var/opt/remi/php81/log/php-fpm/www-error.log');
 
 require_once '../config/config.php';
 require_once '../config/db.php';
-require 'vendor/autoload.php';
+require '../vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
@@ -25,16 +29,18 @@ try {
     error_log("Server info: " . print_r($_SERVER, true));
     
     // 检查 vendor 目录是否存在
-    if (!file_exists('vendor/autoload.php')) {
+    if (!file_exists('../vendor/autoload.php')) {
         throw new Exception("Composer dependencies not installed");
     }
     
     if (!isset($_FILES['file'])) {
+        error_log("No file uploaded");
         throw new Exception("请选择文件");
     }
 
     // 检查文件上传错误
     if ($_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+        error_log("File upload error: " . $_FILES['file']['error']);
         $uploadErrors = array(
             UPLOAD_ERR_INI_SIZE => '文件大小超过 php.ini 中的限制',
             UPLOAD_ERR_FORM_SIZE => '文件大小超过表单中的限制',
@@ -46,7 +52,7 @@ try {
         );
         throw new Exception(isset($uploadErrors[$_FILES['file']['error']]) 
             ? $uploadErrors[$_FILES['file']['error']] 
-            : '文件上传失败，错误代码：' . $_FILES['file']['error']);
+            : '文件上传失败');
     }
 
     error_log("File received: " . print_r($_FILES, true));
