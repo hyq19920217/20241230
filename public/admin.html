@@ -70,9 +70,16 @@
                     <input type="text" id="searchInput" placeholder="搜索词汇..." class="search-input">
                 </div>
                 <div class="vocabulary-list">
+                    <div class="batch-actions">
+                        <label>
+                            <input type="checkbox" id="selectAll"> 全选
+                        </label>
+                        <button id="batchDelete" class="danger-btn" disabled>批量删除</button>
+                    </div>
                     <table class="vocabulary-table">
                         <thead>
                             <tr>
+                                <th width="40px">选择</th>
                                 <th>单词</th>
                                 <th>词性</th>
                                 <th>中文含义</th>

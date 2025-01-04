@@ -176,5 +176,19 @@ class Database {
         $stmt->execute([$title, $content, $imagePath]);
         return $this->conn->lastInsertId();
     }
+
+    // 添加批量删除方法
+    public function batchDeleteVocabulary($ids) {
+        try {
+            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+            $stmt = $this->conn->prepare(
+                "DELETE FROM pm_vocabulary WHERE id IN ($placeholders)"
+            );
+            return $stmt->execute($ids);
+        } catch(PDOException $e) {
+            error_log("Batch delete failed: " . $e->getMessage());
+            throw new Exception("批量删除失败");
+        }
+    }
 }
 ?> 

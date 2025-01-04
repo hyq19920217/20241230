@@ -177,6 +177,9 @@ function loadVocabularyList() {
             countSpan.textContent = data.length + ' 个词汇';
             tbody.innerHTML = data.map(item => `
                 <tr>
+                    <td>
+                        <input type="checkbox" class="vocab-select" data-id="${item.id}">
+                    </td>
                     <td>${item.word}</td>
                     <td>${item.part_of_speech}</td>
                     <td>${item.meaning}</td>
@@ -491,3 +494,55 @@ function showPanel(panelName) {
         loadArticles();
     }
 }
+
+// 全选功能
+document.getElementById('selectAll').addEventListener('change', function(e) {
+    const checkboxes = document.querySelectorAll('.vocab-select');
+    checkboxes.forEach(checkbox => checkbox.checked = e.target.checked);
+    updateBatchDeleteButton();
+});
+
+// 更新批量删除按钮状态
+function updateBatchDeleteButton() {
+    const selectedCount = document.querySelectorAll('.vocab-select:checked').length;
+    const batchDeleteBtn = document.getElementById('batchDelete');
+    batchDeleteBtn.disabled = selectedCount === 0;
+    batchDeleteBtn.textContent = `批量删除 (${selectedCount})`;
+}
+
+// 监听单个复选框的变化
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('vocab-select')) {
+        updateBatchDeleteButton();
+    }
+});
+
+// 批量删除功能
+document.getElementById('batchDelete').addEventListener('click', function() {
+    const selectedIds = Array.from(document.querySelectorAll('.vocab-select:checked'))
+        .map(checkbox => checkbox.dataset.id);
+    
+    if (!confirm(`确定要删除选中的 ${selectedIds.length} 个词汇吗？`)) {
+        return;
+    }
+
+    fetch('/api/batch_delete_vocabulary.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ids: selectedIds })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            loadVocabularyList();
+        } else {
+            throw new Error(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('批量删除失败：' + error.message);
+    });
+});
