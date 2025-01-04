@@ -16,7 +16,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: "*.php,config.php,db.php,nginx/**,vendor/**,composer.json,composer.lock,db/**"
+          source: "public/**,api/**,assets/**,*.php,config.php,db.php,nginx/**,vendor/**,composer.json,composer.lock,db/**"
           target: "/usr/share/nginx/html"
 
       - name: Configure Server
@@ -40,3 +40,5 @@ jobs:
             sudo cp /usr/share/nginx/html/nginx/conf.d/default.conf /etc/nginx/conf.d/
             sudo cp /usr/share/nginx/html/nginx/nginx.conf /etc/nginx/nginx.conf
             sudo systemctl restart nginx 
+            chmod 755 /usr/share/nginx/html/api/*.php
+            chmod 755 /usr/share/nginx/html/config/*.php 

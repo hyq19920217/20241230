@@ -1,24 +1,30 @@
 <?php
-require_once '../config/config.php';
-require_once '../config/db.php';
-
-header('Content-Type: application/json; charset=utf-8');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+require_once "../config/db.php";
 
 try {
+    // 测试数据库连接
     $db = new Database();
-    $stmt = $db->conn->prepare("SELECT * FROM pm_vocabulary ORDER BY word ASC");
-    $stmt->execute();
-    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (!$db->conn) {
+        throw new Exception("Database connection failed");
+    }
     
-    error_log("Fetched data: " . json_encode($result));
-    echo json_encode($result, JSON_UNESCAPED_UNICODE);
+    // 测试 SQL 查询
+    $stmt = $db->conn->query("SELECT 1");
+    if (!$stmt) {
+        throw new Exception("Basic query failed");
+    }
+    
+    $vocabulary = $db->getAllVocabulary();
+    echo json_encode($vocabulary);
 } catch (Exception $e) {
-    error_log("Error fetching vocabulary: " . $e->getMessage());
-    error_log("Stack trace: " . $e->getTraceAsString());
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine()
+    ]);
 }
 ?> 
