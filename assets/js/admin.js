@@ -178,7 +178,7 @@ function loadVocabularyList() {
             tbody.innerHTML = data.map(item => `
                 <tr>
                     <td>
-                        <input type="checkbox" class="vocab-select" data-id="${item.id}">
+                        <input type="checkbox" class="vocab-select" data-id="${item.id}" style="display: none;">
                     </td>
                     <td>${item.word}</td>
                     <td>${item.part_of_speech}</td>
@@ -191,6 +191,13 @@ function loadVocabularyList() {
                     </td>
                 </tr>
             `).join('');
+            
+            // 如果正在批量删除模式，显示复选框
+            if (document.querySelector('.batch-actions').style.display === 'block') {
+                document.querySelectorAll('.vocab-select').forEach(checkbox => {
+                    checkbox.style.display = 'inline-block';
+                });
+            }
         })
         .catch(error => {
             console.error('Error:', error);
