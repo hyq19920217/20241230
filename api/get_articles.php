@@ -1,23 +1,18 @@
 <?php
-require_once '../config/config.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+require_once "../config/db.php";
 
-header('Content-Type: application/json; charset=utf8mb4');
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header("Cache-Control: no-cache, no-store, must-revalidate");
 
 try {
-    $stmt = $pdo->query("
-        SELECT id, title, content, image_path, created_at, updated_at, status 
-        FROM articles 
-        ORDER BY created_at DESC
-    ");
-    
-    $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+    $db = new Database();
+    $articles = $db->getArticles();
     echo json_encode($articles);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode([
-        'status' => 'error',
-        'message' => $e->getMessage()
-    ]);
+    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
 ?> 
