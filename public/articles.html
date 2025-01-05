@@ -7,12 +7,29 @@
 </head>
 <body>
     <div class="container">
-        <h1>产品经理文章列表</h1>
         <div class="header-actions">
-            <button class="nav-btn" onclick="window.location.href='/public/index.html'">返回词汇列表</button>
+            <a href="/public/index.html" class="header-link">
+                <i class="fas fa-arrow-left"></i> 返回词汇列表 / Back
+            </a>
         </div>
+        <h1>
+            产品经理文章列表 
+            <span id="articleCount" class="count-badge">加载中...</span>
+        </h1>
+        <h2 class="subtitle">Product Manager's Articles</h2>
+
+        <!-- 文章列表 -->
+        <div class="articles-list" id="articlesList">
+            <!-- 文章列表将通过 JS 加载 -->
+        </div>
+
+        <!-- 分页控件 -->
+        <div class="pagination" id="pagination">
+            <!-- 分页将通过 JS 生成 -->
+        </div>
+
         <!-- 文章详情模态框 -->
-        <div id="articleModal" class="modal" style="display: none;">
+        <div id="articleModal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
                 <h2 id="modalTitle"></h2>
@@ -22,9 +39,6 @@
                     <div id="modalTime"></div>
                 </div>
             </div>
-        </div>
-        <div class="articles-list" id="articlesList">
-            <!-- 文章列表将通过 JS 加载 -->
         </div>
     </div>
     <script src="/assets/js/articles.js"></script>
