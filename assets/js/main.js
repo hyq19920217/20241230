@@ -196,3 +196,23 @@ window.onclick = (event) => {
         messageModal.classList.remove('show');
     }
 };
+
+// 在初始化函数中添加获取文章数量的代码
+async function initialize() {
+    try {
+        // 获取词汇总数
+        const vocabResponse = await fetch('/api/get_vocabulary_count.php');
+        const vocabData = await vocabResponse.json();
+        document.getElementById('vocabularyCount').textContent = vocabData.count + ' 个词汇';
+        
+        // 获取文章总数
+        const articleResponse = await fetch('/api/get_articles.php?page=1&size=1');
+        const articleData = await articleResponse.json();
+        document.getElementById('articleCount').textContent = articleData.total + ' 篇';
+        
+        // 加载词汇列表
+        loadVocabularyByLetter('A');
+    } catch (error) {
+        console.error('初始化失败:', error);
+    }
+}

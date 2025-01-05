@@ -1,18 +1,32 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-require_once "../config/db.php";
+require_once '../config/db.php';
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
-header("Cache-Control: no-cache, no-store, must-revalidate");
 
 try {
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $size = isset($_GET['size']) ? (int)$_GET['size'] : 10;
+    $offset = ($page - 1) * $size;
+
     $db = new Database();
-    $articles = $db->getArticles();
-    echo json_encode($articles);
+    
+    // 获取总文章数
+    $total = $db->getArticlesCount();
+    
+    // 获取分页数据
+    $articles = $db->getArticles($offset, $size);
+    
+    echo json_encode([
+        'status' => 'success',
+        'total' => $total,
+        'articles' => $articles
+    ]);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    echo json_encode([
+        'status' => 'error',
+        'message' => $e->getMessage()
+    ]);
 }
 ?> 

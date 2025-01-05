@@ -159,13 +159,22 @@ class Database {
         }
     }
 
-    public function getArticles() {
-        $stmt = $this->conn->query("
-            SELECT id, title, content, image_path, created_at, updated_at 
-            FROM articles 
-            ORDER BY created_at DESC
-        ");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function getArticles($offset = 0, $size = 10) {
+        try {
+            $stmt = $this->conn->prepare("
+                SELECT id, title, content, image_path, created_at, updated_at 
+                FROM articles 
+                ORDER BY created_at DESC
+                LIMIT ?, ?
+            ");
+            $stmt->bindValue(1, $offset, PDO::PARAM_INT);
+            $stmt->bindValue(2, $size, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Get articles failed: " . $e->getMessage());
+            throw new Exception("获取文章列表失败");
+        }
     }
 
     public function addArticle($title, $content, $imagePath = null) {
@@ -201,6 +210,17 @@ class Database {
         } catch(PDOException $e) {
             error_log("Batch delete articles failed: " . $e->getMessage());
             throw new Exception("批量删除文章失败");
+        }
+    }
+
+    public function getArticlesCount() {
+        try {
+            $stmt = $this->conn->query("SELECT COUNT(*) as total FROM articles");
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return (int)$result['total'];
+        } catch(PDOException $e) {
+            error_log("Get articles count failed: " . $e->getMessage());
+            throw new Exception("获取文章总数失败");
         }
     }
 }

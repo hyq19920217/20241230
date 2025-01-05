@@ -10,25 +10,28 @@ async function loadArticles(page = 1) {
     try {
         const response = await fetch(`/api/get_articles.php?page=${page}&size=${PAGE_SIZE}`);
         const data = await response.json();
-        totalArticles = data.total;
-        
-        // 更新文章总数显示
-        document.getElementById('articleCount').textContent = `${totalArticles} 篇`;
-        
-        // 渲染文章列表
-        articlesList.innerHTML = data.articles.map(article => `
-            <div class="article-item" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
-                <div class="article-title">${article.title}</div>
-                <div class="article-meta">
-                    发布时间：${new Date(article.created_at).toLocaleString()}
+        if (data.status === 'success') {
+            totalArticles = data.total;
+            
+            // 更新文章总数显示
+            document.getElementById('articleCount').textContent = `${totalArticles} 篇`;
+            
+            // 渲染文章列表
+            articlesList.innerHTML = data.articles.map(article => `
+                <div class="article-item" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
+                    <div class="article-title">${article.title}</div>
+                    <div class="article-meta">
+                        发布时间：${new Date(article.created_at).toLocaleString()}
+                    </div>
                 </div>
-            </div>
-        `).join('');
-        
-        // 渲染分页
-        const totalPages = Math.ceil(totalArticles / PAGE_SIZE);
-        renderPagination(totalPages, currentPage);
-        
+            `).join('');
+            
+            // 渲染分页
+            const totalPages = Math.ceil(totalArticles / PAGE_SIZE);
+            renderPagination(totalPages, currentPage);
+        } else {
+            throw new Error(data.message || '加载失败');
+        }
     } catch (error) {
         console.error('Error:', error);
         articlesList.innerHTML = '<div class="error">加载文章失败</div>';
