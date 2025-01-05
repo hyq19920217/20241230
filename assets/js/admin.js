@@ -451,7 +451,7 @@ async function loadArticles() {
         const articles = await response.json();
         
         articlesList.innerHTML = articles.map(article => `
-            <div class="article-item">
+            <div class="article-item" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
                 <div class="article-header">
                     <div class="article-info">
                         <div class="article-title">${article.title}</div>
@@ -465,7 +465,7 @@ async function loadArticles() {
                 </div>
                 ${article.image_path ? `
                     <div class="image-preview">
-                        <img src="/${article.image_path}" alt="${article.title}">
+                        <img src="/${article.image_path}" alt="${article.title}" onerror="this.src='assets/images/placeholder.png'">
                     </div>
                 ` : ''}
             </div>
@@ -475,6 +475,32 @@ async function loadArticles() {
         articlesList.innerHTML = '<div class="error">加载文章失败</div>';
     }
 }
+
+// 显示文章详情
+function showArticleDetail(article) {
+    const modal = document.getElementById('articleModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalImage = document.getElementById('modalImage');
+    const modalContent = document.getElementById('modalContent');
+    const modalTime = document.getElementById('modalTime');
+    
+    modalTitle.textContent = article.title;
+    modalContent.innerHTML = article.content;
+    modalTime.textContent = `发布时间：${new Date(article.created_at).toLocaleString()}`;
+    
+    if (article.image_path) {
+        modalImage.innerHTML = `<img src="/${article.image_path}" alt="${article.title}" onerror="this.src='assets/images/placeholder.png'">`;
+    } else {
+        modalImage.innerHTML = '';
+    }
+    
+    modal.style.display = 'block';
+}
+
+// 关闭模态框
+document.querySelector('.close').addEventListener('click', function() {
+    document.getElementById('articleModal').style.display = 'none';
+});
 
 // 在切换到文章面板时加载文章列表
 document.querySelector('[data-tab="articles"]').addEventListener('click', loadArticles);

@@ -109,6 +109,19 @@
 
         <!-- 文章管理面板 -->
         <div id="articlesPanel" class="tab-panel">
+            <!-- 文章详情模态框 -->
+            <div id="articleModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2 id="modalTitle"></h2>
+                    <div id="modalImage" class="article-full-image"></div>
+                    <div id="modalContent"></div>
+                    <div class="modal-footer">
+                        <div id="modalTime"></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="section">
                 <h2>发布文章</h2>
                 <form id="articleForm" enctype="multipart/form-data">
