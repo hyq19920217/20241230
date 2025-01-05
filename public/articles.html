@@ -2,16 +2,31 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>产品经理学习文章</title>
-    <link rel="stylesheet" href="/assets/css/main.css">
+    <title>产品经理文章列表</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
     <div class="container">
-        <h1>产品经理学习文章</h1>
-        <div class="articles-grid" id="articlesList">
+        <h1>产品经理文章列表</h1>
+        <div class="header-actions">
+            <button class="nav-btn" onclick="window.location.href='index.html'">返回词汇列表</button>
+        </div>
+        <!-- 文章详情模态框 -->
+        <div id="articleModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="modalTitle"></h2>
+                <div id="modalImage" class="article-full-image"></div>
+                <div id="modalContent"></div>
+                <div class="modal-footer">
+                    <div id="modalTime"></div>
+                </div>
+            </div>
+        </div>
+        <div class="articles-list" id="articlesList">
             <!-- 文章列表将通过 JS 加载 -->
         </div>
     </div>
-    <script src="/assets/js/articles.js"></script>
+    <script src="../assets/js/articles.js"></script>
 </body>
 </html> 
