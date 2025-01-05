@@ -1,53 +1,55 @@
-async function loadArticle() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const articleId = urlParams.get('id');
-    
-    if (!articleId) {
-        location.href = '/articles.html';
-        return;
-    }
-    
+// 获取文章ID
+const urlParams = new URLSearchParams(window.location.search);
+const articleId = urlParams.get('id');
+
+// 加载文章详情
+async function loadArticle(id) {
     try {
-        const response = await fetch(`/api/get_article.php?id=${articleId}`);
-        const article = await response.json();
+        const response = await fetch(`/api/get_article.php?id=${id}`);
+        const data = await response.json();
         
-        document.title = article.title;
-        
-        const content = document.getElementById('articleContent');
-        content.innerHTML = `
-            ${article.image_path ? `<img src="/${article.image_path}" alt="${article.title}">` : ''}
-            <h1>${article.title}</h1>
-            <div class="article-meta">
-                发布时间：${new Date(article.created_at).toLocaleString()}
-            </div>
-            <div class="article-body">
-                ${article.content}
-            </div>
-        `;
-        
-        // 设置上一篇/下一篇按钮
-        const prevBtn = document.getElementById('prevArticle');
-        const nextBtn = document.getElementById('nextArticle');
-        
-        if (article.prev_id) {
-            prevBtn.href = `/article.html?id=${article.prev_id}`;
-            prevBtn.classList.remove('disabled');
+        if (data.status === 'success') {
+            const article = data.article;
+            
+            // 更新页面标题
+            document.title = article.title;
+            
+            // 填充文章内容
+            document.getElementById('articleTitle').textContent = article.title;
+            document.getElementById('articleMeta').textContent = 
+                `发布时间：${new Date(article.created_at).toLocaleString()}`;
+            
+            if (article.image_path) {
+                document.getElementById('articleImage').innerHTML = 
+                    `<img src="/${article.image_path}" alt="${article.title}">`;
+            }
+            
+            document.getElementById('articleContent').innerHTML = article.content;
+            
+            // 更新导航链接
+            if (data.prev_id) {
+                document.getElementById('prevArticle').href = `article.html?id=${data.prev_id}`;
+            } else {
+                document.getElementById('prevArticle').style.display = 'none';
+            }
+            
+            if (data.next_id) {
+                document.getElementById('nextArticle').href = `article.html?id=${data.next_id}`;
+            } else {
+                document.getElementById('nextArticle').style.display = 'none';
+            }
         } else {
-            prevBtn.classList.add('disabled');
+            throw new Error(data.message || '加载失败');
         }
-        
-        if (article.next_id) {
-            nextBtn.href = `/article.html?id=${article.next_id}`;
-            nextBtn.classList.remove('disabled');
-        } else {
-            nextBtn.classList.add('disabled');
-        }
-        
     } catch (error) {
         console.error('Error:', error);
-        document.getElementById('articleContent').innerHTML = '<div class="error">加载文章失败</div>';
+        document.body.innerHTML = '<div class="error">文章加载失败</div>';
     }
 }
 
-// 加载文章详情
-loadArticle(); 
+// 初始加载
+if (articleId) {
+    loadArticle(articleId);
+} else {
+    window.location.href = 'articles.html';
+} 

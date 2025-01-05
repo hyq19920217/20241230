@@ -6,13 +6,23 @@
     <link rel="stylesheet" href="/assets/css/main.css">
 </head>
 <body>
-    <div class="article-container">
-        <div class="article-nav">
-            <a href="#" class="nav-btn prev-btn" id="prevArticle">上一篇</a>
-            <a href="#" class="nav-btn next-btn" id="nextArticle">下一篇</a>
+    <div class="container">
+        <div class="header-actions">
+            <a href="/public/articles.html" class="header-link">
+                <i class="fas fa-arrow-left"></i> 返回文章列表
+            </a>
         </div>
-        <div class="article-content" id="articleContent">
-            <!-- 文章内容将通过 JS 加载 -->
+        
+        <article class="article-detail">
+            <h1 id="articleTitle"></h1>
+            <div class="article-meta" id="articleMeta"></div>
+            <div class="article-image" id="articleImage"></div>
+            <div class="article-content" id="articleContent"></div>
+        </article>
+
+        <div class="article-navigation">
+            <a href="#" class="nav-link prev" id="prevArticle">← 上一篇</a>
+            <a href="#" class="nav-link next" id="nextArticle">下一篇 →</a>
         </div>
     </div>
     <script src="/assets/js/article.js"></script>

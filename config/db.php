@@ -226,5 +226,54 @@ class Database {
             throw new Exception("获取文章总数失败");
         }
     }
+
+    public function getArticle($id) {
+        try {
+            $stmt = $this->conn->prepare("
+                SELECT id, title, content, image_path, created_at, updated_at 
+                FROM articles 
+                WHERE id = ?
+            ");
+            $stmt->execute([$id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Get article failed: " . $e->getMessage());
+            throw new Exception("获取文章详情失败");
+        }
+    }
+
+    public function getPrevArticleId($currentId) {
+        try {
+            $stmt = $this->conn->prepare("
+                SELECT id FROM articles 
+                WHERE id < ? 
+                ORDER BY id DESC 
+                LIMIT 1
+            ");
+            $stmt->execute([$currentId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? $result['id'] : null;
+        } catch(PDOException $e) {
+            error_log("Get prev article failed: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function getNextArticleId($currentId) {
+        try {
+            $stmt = $this->conn->prepare("
+                SELECT id FROM articles 
+                WHERE id > ? 
+                ORDER BY id ASC 
+                LIMIT 1
+            ");
+            $stmt->execute([$currentId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? $result['id'] : null;
+        } catch(PDOException $e) {
+            error_log("Get next article failed: " . $e->getMessage());
+            return null;
+        }
+    }
 }
 ?> 

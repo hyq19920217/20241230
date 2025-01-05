@@ -18,7 +18,7 @@ async function loadArticles(page = 1) {
             
             // 渲染文章列表
             articlesList.innerHTML = data.articles.map(article => `
-                <div class="article-item" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
+                <div class="article-item" onclick="window.location.href='article.html?id=${article.id}'">
                     <div class="article-title">${article.title}</div>
                     <div class="article-meta">
                         发布时间：${new Date(article.created_at).toLocaleString()}

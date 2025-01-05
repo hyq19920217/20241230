@@ -1,52 +1,33 @@
 <?php
-require_once '../config/config.php';
+mb_internal_encoding('UTF-8');
+require_once '../config/db.php';
 
-header('Content-Type: application/json; charset=utf8mb4');
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type');
 
 try {
-    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-    
-    if ($id <= 0) {
-        throw new Exception('无效的文章ID');
+    if (!isset($_GET['id'])) {
+        throw new Exception("文章ID不能为空");
     }
-    
-    // 获取当前文章
-    $stmt = $pdo->prepare("
-        SELECT * FROM articles WHERE id = ?
-    ");
-    $stmt->execute([$id]);
-    $article = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $db = new Database();
+    $article = $db->getArticle($_GET['id']);
     
     if (!$article) {
-        throw new Exception('文章不存在');
+        throw new Exception("文章不存在");
     }
     
-    // 获取上一篇文章ID
-    $stmt = $pdo->prepare("
-        SELECT id FROM articles 
-        WHERE created_at < ? 
-        ORDER BY created_at DESC 
-        LIMIT 1
-    ");
-    $stmt->execute([$article['created_at']]);
-    $prevArticle = $stmt->fetch(PDO::FETCH_ASSOC);
+    // 获取上一篇和下一篇文章的ID
+    $prevId = $db->getPrevArticleId($_GET['id']);
+    $nextId = $db->getNextArticleId($_GET['id']);
     
-    // 获取下一篇文章ID
-    $stmt = $pdo->prepare("
-        SELECT id FROM articles 
-        WHERE created_at > ? 
-        ORDER BY created_at ASC 
-        LIMIT 1
-    ");
-    $stmt->execute([$article['created_at']]);
-    $nextArticle = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    // 添加上一篇/下一篇的ID
-    $article['prev_id'] = $prevArticle ? $prevArticle['id'] : null;
-    $article['next_id'] = $nextArticle ? $nextArticle['id'] : null;
-    
-    echo json_encode($article);
-    
+    echo json_encode([
+        'status' => 'success',
+        'article' => $article,
+        'prev_id' => $prevId,
+        'next_id' => $nextId
+    ]);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
