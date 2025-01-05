@@ -465,7 +465,7 @@ async function loadArticles() {
                 </div>
                 ${article.image_path ? `
                     <div class="image-preview">
-                        <img src="${article.image_path}" alt="${article.title}" onerror="this.src='assets/images/placeholder.png'">
+                        <img src="${article.image_path}" alt="${article.title}" onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'>图片加载失败</div>'">
                     </div>
                 ` : ''}
             </div>
@@ -489,9 +489,17 @@ function showArticleDetail(article) {
     modalTime.textContent = `发布时间：${new Date(article.created_at).toLocaleString()}`;
     
     if (article.image_path) {
-        modalImage.innerHTML = `<img src="${article.image_path}" alt="${article.title}" onerror="this.src='assets/images/placeholder.png'">`;
+        // 先检查图片是否存在
+        const img = new Image();
+        img.onload = function() {
+            modalImage.innerHTML = `<img src="${article.image_path}" alt="${article.title}">`;
+        };
+        img.onerror = function() {
+            modalImage.innerHTML = '<div class="image-placeholder">图片加载失败</div>';
+        };
+        img.src = article.image_path;
     } else {
-        modalImage.innerHTML = '';
+        modalImage.innerHTML = '<div class="image-placeholder">无图片</div>';
     }
     
     modal.style.display = 'block';
