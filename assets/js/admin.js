@@ -451,7 +451,10 @@ async function loadArticles() {
         const articles = await response.json();
         
         articlesList.innerHTML = articles.map(article => `
-            <div class="article-item" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
+            <div class="article-item">
+                <div class="article-checkbox" style="display: none;">
+                    <input type="checkbox" class="article-select" data-id="${article.id}">
+                </div>
                 <div class="article-header">
                     <div class="article-info">
                         <div class="article-title">${article.title}</div>
@@ -492,12 +495,12 @@ function showArticleDetail(article) {
         // 先检查图片是否存在
         const img = new Image();
         img.onload = function() {
-            modalImage.innerHTML = `<img src="${article.image_path}" alt="${article.title}">`;
+            modalImage.innerHTML = `<img src="/${article.image_path}" alt="${article.title}">`;
         };
         img.onerror = function() {
             modalImage.innerHTML = '<div class="image-placeholder">图片加载失败</div>';
         };
-        img.src = article.image_path;
+        img.src = '/' + article.image_path;
     } else {
         modalImage.innerHTML = '<div class="image-placeholder">无图片</div>';
     }
@@ -610,6 +613,80 @@ document.getElementById('confirmBatchDelete').addEventListener('click', function
     .then(data => {
         if (data.status === 'success') {
             loadVocabularyList();
+        } else {
+            throw new Error(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('批量删除失败：' + error.message);
+    });
+});
+
+// 文章批量删除相关功能
+document.getElementById('startArticleBatchDelete').addEventListener('click', function() {
+    document.getElementById('articleBatchActions').style.display = 'block';
+    this.style.display = 'none';
+    document.querySelectorAll('.article-checkbox').forEach(checkbox => {
+        checkbox.style.display = 'block';
+    });
+});
+
+document.getElementById('cancelArticleBatchDelete').addEventListener('click', function() {
+    exitArticleBatchDeleteMode();
+});
+
+function exitArticleBatchDeleteMode() {
+    document.getElementById('articleBatchActions').style.display = 'none';
+    document.getElementById('startArticleBatchDelete').style.display = 'block';
+    document.querySelectorAll('.article-checkbox').forEach(checkbox => {
+        checkbox.style.display = 'none';
+    });
+    document.querySelectorAll('.article-select').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    document.getElementById('selectAllArticles').checked = false;
+}
+
+document.getElementById('selectAllArticles').addEventListener('change', function(e) {
+    document.querySelectorAll('.article-select').forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+    });
+    updateArticleBatchDeleteButton();
+});
+
+function updateArticleBatchDeleteButton() {
+    const selectedCount = document.querySelectorAll('.article-select:checked').length;
+    document.getElementById('selectedArticlesCount').textContent = 
+        selectedCount > 0 ? `已选择 ${selectedCount} 项` : '';
+}
+
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('article-select')) {
+        updateArticleBatchDeleteButton();
+    }
+});
+
+document.getElementById('confirmArticleBatchDelete').addEventListener('click', function() {
+    const selectedIds = Array.from(document.querySelectorAll('.article-select:checked'))
+        .map(checkbox => checkbox.dataset.id);
+    
+    if (!confirm(`确定要删除选中的 ${selectedIds.length} 篇文章吗？`)) {
+        return;
+    }
+
+    fetch('/api/batch_delete_articles.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ids: selectedIds })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            loadArticles();
+            exitArticleBatchDeleteMode();
         } else {
             throw new Error(data.message);
         }

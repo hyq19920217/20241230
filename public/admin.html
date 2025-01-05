@@ -145,6 +145,15 @@
 
             <div class="section">
                 <h2>文章列表</h2>
+                <button id="startArticleBatchDelete" class="action-btn">批量删除</button>
+                <div class="batch-actions" id="articleBatchActions" style="display: none;">
+                    <label>
+                        <input type="checkbox" id="selectAllArticles"> 全选
+                    </label>
+                    <span id="selectedArticlesCount"></span>
+                    <button id="confirmArticleBatchDelete" class="danger-btn">删除</button>
+                    <button id="cancelArticleBatchDelete" class="normal-btn">取消</button>
+                </div>
                 <div class="articles-list" id="articlesList">
                     <!-- 文章列表将通过 JS 加载 -->
                 </div>

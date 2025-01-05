@@ -190,5 +190,18 @@ class Database {
             throw new Exception("批量删除失败");
         }
     }
+
+    public function batchDeleteArticles($ids) {
+        try {
+            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+            $stmt = $this->conn->prepare(
+                "DELETE FROM articles WHERE id IN ($placeholders)"
+            );
+            return $stmt->execute($ids);
+        } catch(PDOException $e) {
+            error_log("Batch delete articles failed: " . $e->getMessage());
+            throw new Exception("批量删除文章失败");
+        }
+    }
 }
 ?> 
