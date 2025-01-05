@@ -65,7 +65,10 @@
 
             <!-- 词汇列表部分 -->
             <div class="section">
+                <div class="section-header">
                 <h2>词汇列表 <span id="vocabularyCount" class="count-badge">加载中...</span></h2>
+                    <button class="nav-btn" onclick="showPanel('articles')">查看文章列表</button>
+                </div>
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="搜索词汇..." class="search-input">
                 </div>
@@ -120,7 +123,7 @@
                         <div id="modalTime"></div>
                     </div>
                 </div>
-            </div>
+    </div>
 
             <div class="section">
                 <h2>发布文章</h2>
@@ -137,11 +140,11 @@
                     <div class="form-group">
                         <label>内容：</label>
                         <textarea id="articleContent" required></textarea>
-                    </div>
+                        </div>
                     <button type="submit">发布文章</button>
                 </form>
                 <div id="articleResult" class="message"></div>
-            </div>
+                            </div>
 
             <div class="section">
                 <h2>文章列表</h2>
@@ -153,12 +156,12 @@
                     <span id="selectedArticlesCount"></span>
                     <button id="confirmArticleBatchDelete" class="danger-btn">删除</button>
                     <button id="cancelArticleBatchDelete" class="normal-btn">取消</button>
-                </div>
+                                </div>
                 <div class="articles-list" id="articlesList">
                     <!-- 文章列表将通过 JS 加载 -->
-                </div>
-            </div>
-        </div>
+                                </div>
+                            </div>
+                        </div>
 
         <div id="backToTop" class="back-to-top" title="回到顶部">↑</div>
     </div>

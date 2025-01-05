@@ -455,7 +455,7 @@ async function loadArticles() {
                 <div class="article-checkbox" style="display: none;">
                     <input type="checkbox" class="article-select" data-id="${article.id}">
                 </div>
-                <div class="article-header">
+                <div class="article-header" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
                     <div class="article-info">
                         <div class="article-title">${article.title}</div>
                         <div class="article-time">
@@ -463,11 +463,11 @@ async function loadArticles() {
                         </div>
                     </div>
                 </div>
-                <div class="article-preview">
+                <div class="article-preview" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
                     ${article.content.substring(0, 100)}...
                 </div>
                 ${article.image_path ? `
-                    <div class="image-preview">
+                    <div class="image-preview" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
                         <img src="/${article.image_path}" alt="${article.title}" onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'>图片加载失败</div>'">
                     </div>
                 ` : ''}

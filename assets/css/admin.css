@@ -519,3 +519,28 @@ button:hover {
     border: 1px dashed #ddd;
     border-radius: 4px;
 }
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h2 {
+    margin: 0;
+}
+
+.section-header .nav-btn {
+    padding: 8px 15px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.section-header .nav-btn:hover {
+    background: #45a049;
+}
