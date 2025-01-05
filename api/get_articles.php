@@ -1,8 +1,10 @@
 <?php
+mb_internal_encoding('UTF-8');
 require_once '../config/db.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type');
 
 try {
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;

@@ -1,10 +1,10 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+mb_internal_encoding('UTF-8');
 require_once "../config/db.php";
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type');
 
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

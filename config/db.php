@@ -13,9 +13,12 @@ class Database {
                 DB_PASS,
                 array(
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+                    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4",
+                    PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET utf8mb4"
                 )
             );
+            $this->conn->exec("SET CHARACTER SET utf8mb4");
+            $this->conn->exec("SET NAMES utf8mb4");
         } catch(PDOException $e) {
             throw new Exception("数据库连接失败: " . $e->getMessage());
         }
