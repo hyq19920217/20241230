@@ -448,31 +448,35 @@ async function loadArticles() {
     
     try {
         const response = await fetch('/api/get_articles.php');
-        const articles = await response.json();
+        const data = await response.json();
         
-        articlesList.innerHTML = articles.map(article => `
-            <div class="article-item">
-                <div class="article-checkbox" style="display: none;">
-                    <input type="checkbox" class="article-select" data-id="${article.id}">
-                </div>
-                <div class="article-header" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
-                    <div class="article-info">
-                        <div class="article-title">${article.title}</div>
-                        <div class="article-time">
-                            发布时间：${new Date(article.created_at).toLocaleString()}
+        if (data.status === 'success') {
+            articlesList.innerHTML = data.articles.map(article => `
+                <div class="article-item">
+                    <div class="article-checkbox" style="display: none;">
+                        <input type="checkbox" class="article-select" data-id="${article.id}">
+                    </div>
+                    <div class="article-header" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
+                        <div class="article-info">
+                            <div class="article-title">${article.title}</div>
+                            <div class="article-time">
+                                发布时间：${new Date(article.created_at).toLocaleString()}
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="article-preview" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
-                    ${article.content.substring(0, 100)}...
-                </div>
-                ${article.image_path ? `
-                    <div class="image-preview" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
-                        <img src="/${article.image_path}" alt="${article.title}" onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'>图片加载失败</div>'">
+                    <div class="article-preview" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
+                        ${article.content.substring(0, 100)}...
                     </div>
-                ` : ''}
-            </div>
-        `).join('');
+                    ${article.image_path ? `
+                        <div class="image-preview" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
+                            <img src="/${article.image_path}" alt="${article.title}" onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'>图片加载失败</div>'">
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        } else {
+            throw new Error(data.message || '加载失败');
+        }
     } catch (error) {
         console.error('Error:', error);
         articlesList.innerHTML = '<div class="error">加载文章失败</div>';
