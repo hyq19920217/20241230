@@ -205,11 +205,6 @@ async function initialize() {
         const vocabData = await vocabResponse.json();
         document.getElementById('vocabularyCount').textContent = vocabData.count + ' 个词汇';
         
-        // 获取文章总数
-        const articleResponse = await fetch('/api/get_articles.php?page=1&size=1');
-        const articleData = await articleResponse.json();
-        document.getElementById('articleCount').textContent = articleData.total + ' 篇';
-        
         // 加载词汇列表
         loadVocabularyByLetter('A');
     } catch (error) {
