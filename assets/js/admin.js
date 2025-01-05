@@ -465,7 +465,7 @@ async function loadArticles() {
                 </div>
                 ${article.image_path ? `
                     <div class="image-preview">
-                        <img src="/${article.image_path}" alt="${article.title}" onerror="this.src='assets/images/placeholder.png'">
+                        <img src="${article.image_path}" alt="${article.title}" onerror="this.src='assets/images/placeholder.png'">
                     </div>
                 ` : ''}
             </div>
@@ -489,7 +489,7 @@ function showArticleDetail(article) {
     modalTime.textContent = `发布时间：${new Date(article.created_at).toLocaleString()}`;
     
     if (article.image_path) {
-        modalImage.innerHTML = `<img src="/${article.image_path}" alt="${article.title}" onerror="this.src='assets/images/placeholder.png'">`;
+        modalImage.innerHTML = `<img src="${article.image_path}" alt="${article.title}" onerror="this.src='assets/images/placeholder.png'">`;
     } else {
         modalImage.innerHTML = '';
     }
