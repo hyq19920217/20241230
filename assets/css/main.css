@@ -430,3 +430,72 @@ h1 {
     border-color: #4CAF50;
     color: #4CAF50;
 }
+
+/* 文章详情页样式 */
+.article-detail {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.article-detail h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.article-meta {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.article-image {
+    margin: 20px 0;
+}
+
+.article-image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.article-content {
+    line-height: 1.8;
+    color: #333;
+}
+
+.article-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.nav-link {
+    color: #4CAF50;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid #4CAF50;
+    border-radius: 20px;
+    transition: all 0.3s;
+}
+
+.nav-link:hover {
+    background: #4CAF50;
+    color: white;
+}
+
+.nav-link.prev::before {
+    content: "←";
+    margin-right: 8px;
+}
+
+.nav-link.next::after {
+    content: "→";
+    margin-left: 8px;
+}
