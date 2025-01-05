@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 require_once "../config/db.php";
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
 try {
@@ -11,35 +11,56 @@ try {
         throw new Exception('Invalid request method');
     }
 
-    $title = $_POST['title'] ?? '';
-    $content = $_POST['content'] ?? '';
-    
-    // 处理图片上传
-    $imagePath = null;
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = '../uploads/';
-        if (!file_exists($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-        
-        $fileName = uniqid() . '_' . basename($_FILES['image']['name']);
-        $uploadFile = $uploadDir . $fileName;
-        
-        if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
-            $imagePath = 'uploads/' . $fileName;
-        }
+    if (!isset($_FILES['image'])) {
+        throw new Exception("没有上传图片");
     }
 
+    $file = $_FILES['image'];
+    // 检查文件类型
+    $allowed = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!in_array($file['type'], $allowed)) {
+        throw new Exception("只支持 JPG、PNG、GIF 格式的图片");
+    }
+
+    // 生成唯一的文件名
+    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = uniqid() . '.' . $extension;
+    
+    // 确保上传目录存在
+    $uploadDir = '../uploads/articles/';
+    if (!file_exists($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+    }
+    
+    // 移动文件到目标目录
+    $targetPath = $uploadDir . $filename;
+    if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+        throw new Exception("图片上传失败");
+    }
+    
+    // 保存到数据库的路径（相对路径）
+    $dbPath = 'uploads/articles/' . $filename;
+
     $db = new Database();
+    $title = $_POST['title'];
+    $content = $_POST['content'];
+    $imagePath = $dbPath;
+
     $articleId = $db->addArticle($title, $content, $imagePath);
     
     echo json_encode([
         'status' => 'success',
         'message' => '文章发布成功',
-        'id' => $articleId
+        'data' => [
+            'id' => $articleId,
+            'image_path' => $imagePath
+        ]
     ]);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    echo json_encode([
+        'status' => 'error',
+        'message' => $e->getMessage()
+    ]);
 }
 ?> 

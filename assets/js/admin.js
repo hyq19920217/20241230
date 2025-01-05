@@ -465,7 +465,7 @@ async function loadArticles() {
                 </div>
                 ${article.image_path ? `
                     <div class="image-preview">
-                        <img src="${article.image_path}" alt="${article.title}" onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'>图片加载失败</div>'">
+                        <img src="/${article.image_path}" alt="${article.title}" onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'>图片加载失败</div>'">
                     </div>
                 ` : ''}
             </div>
