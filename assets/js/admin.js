@@ -729,8 +729,9 @@ async function publishArticle() {
         if (data.status === 'success') {
             alert('文章发布成功');
             document.getElementById('articleForm').reset();
-            document.getElementById('imagePreview').innerHTML = '';
-            loadArticles();
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
         } else {
             throw new Error(data.message);
         }
