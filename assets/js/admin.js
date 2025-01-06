@@ -413,33 +413,9 @@ document.getElementById('articleImage').addEventListener('change', function(e) {
 });
 
 // 提交文章
-document.getElementById('articleForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData();
-    formData.append('title', document.getElementById('articleTitle').value);
-    formData.append('content', document.getElementById('articleContent').value);
-    formData.append('image', document.getElementById('articleImage').files[0]);
-
-    try {
-        const response = await fetch('/api/add_article.php', {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-        
-        if (data.status === 'success') {
-            alert('文章发布成功');
-            document.getElementById('articleForm').reset();
-            document.getElementById('imagePreview').innerHTML = '';
-            loadArticles();
-        } else {
-            throw new Error(data.message);
-        }
-    } catch (error) {
-        alert('发布失败：' + error.message);
-    }
+document.getElementById('articleForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    publishArticle();
 });
 
 // 加载文章列表
@@ -702,6 +678,9 @@ document.getElementById('confirmArticleBatchDelete').addEventListener('click', f
 });
 
 async function publishArticle() {
+    // 阻止表单默认提交行为
+    event.preventDefault();
+
     const title = document.getElementById('articleTitle').value;
     const content = document.getElementById('articleContent').value;
     const imageFile = document.getElementById('articleImage').files[0];
@@ -729,9 +708,8 @@ async function publishArticle() {
         if (data.status === 'success') {
             alert('文章发布成功');
             document.getElementById('articleForm').reset();
-            setTimeout(() => {
-                window.location.reload();
-            }, 500);
+            // 直接跳转到文章列表页面
+            window.location.href = '/public/articles.html';
         } else {
             throw new Error(data.message);
         }
