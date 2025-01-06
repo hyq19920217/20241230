@@ -700,3 +700,41 @@ document.getElementById('confirmArticleBatchDelete').addEventListener('click', f
         alert('批量删除失败：' + error.message);
     });
 });
+
+async function publishArticle() {
+    const title = document.getElementById('articleTitle').value;
+    const content = document.getElementById('articleContent').value;
+    const imageFile = document.getElementById('articleImage').files[0];
+    
+    if (!title || !content) {
+        alert('请填写文章标题和内容');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('content', content);
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
+    
+    try {
+        const response = await fetch('/api/add_article.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            alert('文章发布成功');
+            document.getElementById('articleForm').reset();
+            document.getElementById('imagePreview').innerHTML = '';
+            loadArticles();
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        alert('发布失败：' + error.message);
+    }
+}
