@@ -748,14 +748,22 @@ async function publishArticle(event) {
 
     const title = document.getElementById('articleTitle').value;
     const content = document.getElementById('articleContent').value
-        .replace(/\n/g, '<br>')
-        .replace(/•\s+/g, '</li><li>')
-        .replace(/^\s*•/gm, '<ul><li>')
-        .replace(/<\/li><\/ul>\s*<ul><li>/g, '</li><li>');
-    
-    if (content.endsWith('</li>')) {
-        content += '</ul>';
-    }
+        .replace(/[•·]\s*(.*?)(?=(?:[•·]|\n|$))/g, '<li>$1</li>')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line)
+        .map(line => {
+            if (line.startsWith('<li>')) {
+                return line;
+            }
+            return `<p>${line}</p>`;
+        })
+        .join('');
+
+    // 将连续的 li 元素包装在 ul 中
+    const wrappedContent = content
+        .replace(/(<li>.*?<\/li>)+/g, '<ul>$&</ul>')
+        .replace(/<\/ul>\s*<ul>/g, '');
 
     const imageFile = document.getElementById('articleImage').files[0];
     
