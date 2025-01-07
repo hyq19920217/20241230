@@ -469,7 +469,11 @@ async function loadArticles() {
                         </div>
                     </div>
                     <div class="article-preview">
-                        ${article.content.substring(0, 100)}...
+                        <div class="article-content">
+                            ${article.content.length > 300 ? 
+                                article.content.substring(0, 300) + '...' : 
+                                article.content}
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -486,7 +490,11 @@ async function loadArticles() {
 function showEditArticle(article) {
     document.getElementById('editArticleId').value = article.id;
     document.getElementById('editArticleTitle').value = article.title;
-    document.getElementById('editArticleContent').value = article.content;
+    document.getElementById('editArticleContent').value = article.content
+        .replace(/<br\s*\/?>/g, '\n')
+        .replace(/<\/?ul>/g, '')
+        .replace(/<li>/g, '• ')
+        .replace(/<\/li>/g, '\n');
     
     const currentImage = document.getElementById('currentImage');
     if (article.image_path) {
@@ -508,7 +516,16 @@ document.getElementById('editArticleForm').addEventListener('submit', async func
     const formData = new FormData();
     formData.append('id', document.getElementById('editArticleId').value);
     formData.append('title', document.getElementById('editArticleTitle').value);
-    formData.append('content', document.getElementById('editArticleContent').value);
+    let content = document.getElementById('editArticleContent').value
+        .replace(/\n/g, '<br>')
+        .replace(/•\s+/g, '</li><li>')
+        .replace(/^\s*•/gm, '<ul><li>')
+        .replace(/<\/li><\/ul>\s*<ul><li>/g, '</li><li>');
+    
+    if (content.endsWith('</li>')) {
+        content += '</ul>';
+    }
+    formData.append('content', content);
     
     const imageFile = document.getElementById('editArticleImage').files[0];
     if (imageFile) {
@@ -727,11 +744,19 @@ document.getElementById('confirmArticleBatchDelete').addEventListener('click', f
 });
 
 async function publishArticle(event) {
-    // 阻止表单默认提交行为
     event.preventDefault();
 
     const title = document.getElementById('articleTitle').value;
-    const content = document.getElementById('articleContent').value;
+    const content = document.getElementById('articleContent').value
+        .replace(/\n/g, '<br>')
+        .replace(/•\s+/g, '</li><li>')
+        .replace(/^\s*•/gm, '<ul><li>')
+        .replace(/<\/li><\/ul>\s*<ul><li>/g, '</li><li>');
+    
+    if (content.endsWith('</li>')) {
+        content += '</ul>';
+    }
+
     const imageFile = document.getElementById('articleImage').files[0];
     
     if (!title || !content) {
