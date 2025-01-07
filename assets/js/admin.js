@@ -517,10 +517,21 @@ document.getElementById('editArticleForm').addEventListener('submit', async func
     formData.append('id', document.getElementById('editArticleId').value);
     formData.append('title', document.getElementById('editArticleTitle').value);
     let content = document.getElementById('editArticleContent').value
-        .replace(/\n/g, '<br>')
-        .replace(/•\s+/g, '</li><li>')
-        .replace(/^\s*•/gm, '<ul><li>')
-        .replace(/<\/li><\/ul>\s*<ul><li>/g, '</li><li>');
+        .replace(/\u00A0/g, ' ')
+        .replace(/\u2002/g, ' ')
+        .replace(/\u2003/g, ' ')
+        .replace(/\u2009/g, ' ')
+        .replace(/[•·]\s*(.*?)(?=(?:[•·]|\n|$))/g, '<li>$1</li>')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line)
+        .map(line => {
+            if (line.startsWith('<li>')) {
+                return line;
+            }
+            return `<p>${line.replace(/ /g, ' ')}</p>`;
+        })
+        .join('');
     
     if (content.endsWith('</li>')) {
         content += '</ul>';
@@ -748,6 +759,10 @@ async function publishArticle(event) {
 
     const title = document.getElementById('articleTitle').value;
     const content = document.getElementById('articleContent').value
+        .replace(/\u00A0/g, ' ')
+        .replace(/\u2002/g, ' ')
+        .replace(/\u2003/g, ' ')
+        .replace(/\u2009/g, ' ')
         .replace(/[•·]\s*(.*?)(?=(?:[•·]|\n|$))/g, '<li>$1</li>')
         .split('\n')
         .map(line => line.trim())
@@ -756,7 +771,7 @@ async function publishArticle(event) {
             if (line.startsWith('<li>')) {
                 return line;
             }
-            return `<p>${line}</p>`;
+            return `<p>${line.replace(/ /g, ' ')}</p>`;
         })
         .join('');
 
