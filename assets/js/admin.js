@@ -690,8 +690,10 @@ async function publishArticle(event) {
         
         if (data.status === 'success') {
             alert('文章发布成功');
-            // 直接跳转到文章列表页面
-            window.location.href = '/public/articles.html';
+            // 重置表单
+            document.getElementById('articleForm').reset();
+            // 重新加载文章列表
+            loadArticles();
         } else {
             throw new Error(data.message);
         }
@@ -699,3 +701,43 @@ async function publishArticle(event) {
         alert('发布失败：' + error.message);
     }
 }
+
+// 文章批量导入
+document.getElementById('articleImportForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('articleExcelFile');
+    const resultDiv = document.getElementById('articleImportResult');
+    
+    if (!fileInput.files[0]) {
+        alert('请选择要导入的Excel文件');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    
+    try {
+        resultDiv.textContent = '正在导入...';
+        
+        const response = await fetch('/api/import_articles.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            resultDiv.textContent = data.message;
+            if (data.errors && data.errors.length > 0) {
+                resultDiv.innerHTML += '<br>' + data.errors.join('<br>');
+            }
+            fileInput.value = '';
+            loadArticles();
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        resultDiv.textContent = '导入失败：' + error.message;
+    }
+});

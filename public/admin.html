@@ -112,6 +112,22 @@
 
         <!-- 文章管理面板 -->
         <div id="articlesPanel" class="tab-panel">
+            <!-- 批量导入部分 -->
+            <div class="section">
+                <h2>批量导入文章</h2>
+                <div class="import-section">
+                    <a href="../api/download_article_template.php" class="template-link">下载文章导入模板</a>
+                    <form id="articleImportForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>选择 Excel 文件：</label>
+                            <input type="file" id="articleExcelFile" accept=".xlsx,.xls" required>
+                        </div>
+                        <button type="submit">导入</button>
+                    </form>
+                    <div id="articleImportResult" class="message"></div>
+                </div>
+            </div>
+
             <!-- 文章详情模态框 -->
             <div id="articleModal" class="modal" style="display: none;">
                 <div class="modal-content">
@@ -123,7 +139,7 @@
                         <div id="modalTime"></div>
                     </div>
                 </div>
-    </div>
+            </div>
 
             <div class="section">
                 <h2>发布文章</h2>
@@ -143,7 +159,7 @@
                     <button type="submit">发布文章</button>
                 </form>
                 <div id="articleResult" class="message"></div>
-                            </div>
+            </div>
 
             <div class="section">
                 <h2>文章列表</h2>
@@ -155,12 +171,12 @@
                     <span id="selectedArticlesCount"></span>
                     <button id="confirmArticleBatchDelete" class="danger-btn">删除</button>
                     <button id="cancelArticleBatchDelete" class="normal-btn">取消</button>
-                                </div>
+                </div>
                 <div class="articles-list" id="articlesList">
                     <!-- 文章列表将通过 JS 加载 -->
-                                </div>
-                            </div>
-                        </div>
+                </div>
+            </div>
+        </div>
 
         <div id="backToTop" class="back-to-top" title="回到顶部">↑</div>
     </div>
