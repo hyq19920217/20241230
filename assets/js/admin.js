@@ -396,26 +396,9 @@ if (activeTab) {
     }
 }
 
-// 文章图片预览
-document.getElementById('articleImage').addEventListener('change', function(e) {
-    const preview = document.getElementById('imagePreview');
-    const file = e.target.files[0];
-    
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.innerHTML = `<img src="${e.target.result}" alt="预览图">`;
-        };
-        reader.readAsDataURL(file);
-    } else {
-        preview.innerHTML = '';
-    }
-});
-
 // 提交文章
-document.getElementById('articleForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
-    publishArticle();
+document.getElementById('articleForm').addEventListener('submit', function(event) {
+    publishArticle(event);
 });
 
 // 加载文章列表
@@ -677,7 +660,7 @@ document.getElementById('confirmArticleBatchDelete').addEventListener('click', f
     });
 });
 
-async function publishArticle() {
+async function publishArticle(event) {
     // 阻止表单默认提交行为
     event.preventDefault();
 
@@ -707,7 +690,6 @@ async function publishArticle() {
         
         if (data.status === 'success') {
             alert('文章发布成功');
-            document.getElementById('articleForm').reset();
             // 直接跳转到文章列表页面
             window.location.href = '/public/articles.html';
         } else {
