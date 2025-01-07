@@ -275,5 +275,42 @@ class Database {
             return null;
         }
     }
+
+    public function updateVocabulary($id, $word, $partOfSpeech, $meaning, $example, $exampleCn) {
+        try {
+            $stmt = $this->conn->prepare("
+                UPDATE pm_vocabulary 
+                SET word = ?, part_of_speech = ?, meaning = ?, example = ?, example_cn = ?
+                WHERE id = ?
+            ");
+            return $stmt->execute([$word, $partOfSpeech, $meaning, $example, $exampleCn, $id]);
+        } catch(PDOException $e) {
+            error_log("Update vocabulary failed: " . $e->getMessage());
+            throw new Exception("更新词汇失败");
+        }
+    }
+
+    public function updateArticle($id, $title, $content, $imagePath = null) {
+        try {
+            if ($imagePath) {
+                $stmt = $this->conn->prepare("
+                    UPDATE articles 
+                    SET title = ?, content = ?, image_path = ?, updated_at = NOW()
+                    WHERE id = ?
+                ");
+                return $stmt->execute([$title, $content, $imagePath, $id]);
+            } else {
+                $stmt = $this->conn->prepare("
+                    UPDATE articles 
+                    SET title = ?, content = ?, updated_at = NOW()
+                    WHERE id = ?
+                ");
+                return $stmt->execute([$title, $content, $id]);
+            }
+        } catch(PDOException $e) {
+            error_log("Update article failed: " . $e->getMessage());
+            throw new Exception("更新文章失败");
+        }
+    }
 }
 ?> 

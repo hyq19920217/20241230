@@ -186,7 +186,7 @@ function loadVocabularyList() {
                     <td>${item.example}</td>
                     <td>${item.example_cn}</td>
                     <td class="action-buttons">
-                        <button onclick="editVocabulary(${item.id})" class="edit-btn">编辑</button>
+                        <button onclick="showEditVocabulary(${JSON.stringify(item).replace(/"/g, '&quot;')})" class="edit-btn">编辑</button>
                         <button onclick="deleteVocabulary(${item.id})" class="delete-btn">删除</button>
                     </td>
                 </tr>
@@ -205,11 +205,53 @@ function loadVocabularyList() {
         });
 }
 
-// 编辑词汇
-function editVocabulary(id) {
-    // TODO: 实现编辑功能
-    alert('编辑功能开发中...');
+// 显示词汇编辑模态框
+function showEditVocabulary(item) {
+    document.getElementById('editId').value = item.id;
+    document.getElementById('editWord').value = item.word;
+    document.getElementById('editPartOfSpeech').value = item.part_of_speech;
+    document.getElementById('editMeaning').value = item.meaning;
+    document.getElementById('editExample').value = item.example;
+    document.getElementById('editExampleCn').value = item.example_cn;
+    
+    document.getElementById('editVocabularyModal').style.display = 'block';
 }
+
+// 处理词汇编辑表单提交
+document.getElementById('editVocabularyForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        id: document.getElementById('editId').value,
+        word: document.getElementById('editWord').value,
+        partOfSpeech: document.getElementById('editPartOfSpeech').value,
+        meaning: document.getElementById('editMeaning').value,
+        example: document.getElementById('editExample').value,
+        exampleCn: document.getElementById('editExampleCn').value
+    };
+    
+    try {
+        const response = await fetch('/api/update_vocabulary.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            alert('更新成功');
+            document.getElementById('editVocabularyModal').style.display = 'none';
+            loadVocabularyList();
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        alert('更新失败：' + error.message);
+    }
+});
 
 // 删除词汇
 function deleteVocabulary(id) {
@@ -415,22 +457,20 @@ async function loadArticles() {
                     <div class="article-checkbox" style="display: none;">
                         <input type="checkbox" class="article-select" data-id="${article.id}">
                     </div>
-                    <div class="article-header" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
+                    <div class="article-header">
                         <div class="article-info">
                             <div class="article-title">${article.title}</div>
                             <div class="article-time">
                                 发布时间：${new Date(article.created_at).toLocaleString()}
                             </div>
                         </div>
+                        <div class="article-actions">
+                            <button onclick="showEditArticle(${JSON.stringify(article).replace(/"/g, '&quot;')})" class="edit-btn">编辑</button>
+                        </div>
                     </div>
-                    <div class="article-preview" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
+                    <div class="article-preview">
                         ${article.content.substring(0, 100)}...
                     </div>
-                    ${article.image_path ? `
-                        <div class="image-preview" onclick="showArticleDetail(${JSON.stringify(article).replace(/"/g, '&quot;')})">
-                            <img src="/${article.image_path}" alt="${article.title}" onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'>图片加载失败</div>'">
-                        </div>
-                    ` : ''}
                 </div>
             `).join('');
         } else {
@@ -442,38 +482,64 @@ async function loadArticles() {
     }
 }
 
-// 显示文章详情
-function showArticleDetail(article) {
-    const modal = document.getElementById('articleModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalImage = document.getElementById('modalImage');
-    const modalContent = document.getElementById('modalContent');
-    const modalTime = document.getElementById('modalTime');
+// 显示文章编辑模态框
+function showEditArticle(article) {
+    document.getElementById('editArticleId').value = article.id;
+    document.getElementById('editArticleTitle').value = article.title;
+    document.getElementById('editArticleContent').value = article.content;
     
-    modalTitle.textContent = article.title;
-    modalContent.innerHTML = article.content;
-    modalTime.textContent = `发布时间：${new Date(article.created_at).toLocaleString()}`;
-    
+    const currentImage = document.getElementById('currentImage');
     if (article.image_path) {
-        // 先检查图片是否存在
-        const img = new Image();
-        img.onload = function() {
-            modalImage.innerHTML = `<img src="/${article.image_path}" alt="${article.title}">`;
-        };
-        img.onerror = function() {
-            modalImage.innerHTML = '<div class="image-placeholder">图片加载失败</div>';
-        };
-        img.src = '/' + article.image_path;
+        currentImage.innerHTML = `
+            <img src="/${article.image_path}" alt="当前图片" style="max-width: 200px;">
+            <p>当前图片</p>
+        `;
     } else {
-        modalImage.innerHTML = '<div class="image-placeholder">无图片</div>';
+        currentImage.innerHTML = '<p>暂无图片</p>';
     }
     
-    modal.style.display = 'block';
+    document.getElementById('editArticleModal').style.display = 'block';
 }
 
+// 处理文章编辑表单提交
+document.getElementById('editArticleForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('id', document.getElementById('editArticleId').value);
+    formData.append('title', document.getElementById('editArticleTitle').value);
+    formData.append('content', document.getElementById('editArticleContent').value);
+    
+    const imageFile = document.getElementById('editArticleImage').files[0];
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
+    
+    try {
+        const response = await fetch('/api/update_article.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            alert('更新成功');
+            document.getElementById('editArticleModal').style.display = 'none';
+            loadArticles();
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        alert('更新失败：' + error.message);
+    }
+});
+
 // 关闭模态框
-document.querySelector('.close').addEventListener('click', function() {
-    document.getElementById('articleModal').style.display = 'none';
+document.querySelectorAll('.modal .close').forEach(closeBtn => {
+    closeBtn.onclick = function() {
+        this.closest('.modal').style.display = 'none';
+    }
 });
 
 // 在切换到文章面板时加载文章列表

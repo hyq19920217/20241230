@@ -100,6 +100,38 @@
                     </table>
                 </div>
             </div>
+
+            <!-- 词汇编辑模态框 -->
+            <div id="editVocabularyModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>编辑词汇</h2>
+                    <form id="editVocabularyForm">
+                        <input type="hidden" id="editId">
+                        <div class="form-group">
+                            <label>英语单词：</label>
+                            <input type="text" id="editWord" required>
+                        </div>
+                        <div class="form-group">
+                            <label>词性：</label>
+                            <input type="text" id="editPartOfSpeech" required>
+                        </div>
+                        <div class="form-group">
+                            <label>中文含义：</label>
+                            <input type="text" id="editMeaning" required>
+                        </div>
+                        <div class="form-group">
+                            <label>英语例句：</label>
+                            <textarea id="editExample" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>例句翻译：</label>
+                            <textarea id="editExampleCn" required></textarea>
+                        </div>
+                        <button type="submit">保存修改</button>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <!-- 站内信面板 -->
@@ -174,6 +206,31 @@
                 </div>
                 <div class="articles-list" id="articlesList">
                     <!-- 文章列表将通过 JS 加载 -->
+                </div>
+            </div>
+
+            <!-- 文章编辑模态框 -->
+            <div id="editArticleModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>编辑文章</h2>
+                    <form id="editArticleForm" enctype="multipart/form-data">
+                        <input type="hidden" id="editArticleId">
+                        <div class="form-group">
+                            <label>文章标题：</label>
+                            <input type="text" id="editArticleTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label>文章内容：</label>
+                            <textarea id="editArticleContent" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>更新图片（可选）：</label>
+                            <input type="file" id="editArticleImage" accept="image/*">
+                            <div id="currentImage"></div>
+                        </div>
+                        <button type="submit">保存修改</button>
+                    </form>
                 </div>
             </div>
         </div>
